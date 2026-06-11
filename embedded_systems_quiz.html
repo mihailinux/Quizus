@@ -1666,7 +1666,7 @@ const ALL_QUESTIONS = [
 ];
 
 let questions = [...ALL_QUESTIONS];
-let state = {};
+let answers = {};   // keyed by question text — persists across topic switches
 let currentTopic = "All";
 let mode = "quiz";
 let fcIndex = 0;
@@ -1675,15 +1675,18 @@ let stepIndex = 0;
 let stepSelected = [];
 
 const topics = ["All", ...new Set(ALL_QUESTIONS.map(q => q.topic))];
-const SAVE_KEY = "esQuizSession_v1";
+const SAVE_KEY = "esQuizSession_v2";
+
+// Derive per-index state from global answers for the current question list
+function getState(qi) { return answers[questions[qi].q]; }
+function setState(qi, val) { answers[questions[qi].q] = val; }
 
 function saveSession() {
   try {
-    const questionKeys = questions.map(q => q.q);
     localStorage.setItem(SAVE_KEY, JSON.stringify({
       currentTopic, mode, stepIndex, fcIndex,
-      questionKeys,
-      state
+      questionOrder: questions.map(q => q.q),
+      answers
     }));
   } catch(e) {}
 }
@@ -1697,20 +1700,18 @@ function loadSession() {
     mode = saved.mode || "quiz";
     stepIndex = saved.stepIndex || 0;
     fcIndex = saved.fcIndex || 0;
-    const savedKeys = saved.questionKeys || [];
-    if (savedKeys.length > 0) {
+    answers = saved.answers || {};
+    // Restore question order
+    const order = saved.questionOrder || [];
+    if (order.length > 0) {
       const base = currentTopic === "All"
         ? ALL_QUESTIONS
         : ALL_QUESTIONS.filter(q => q.topic === currentTopic);
       const reordered = [];
-      savedKeys.forEach(k => {
-        const found = base.find(q => q.q === k);
-        if (found) reordered.push(found);
-      });
+      order.forEach(k => { const f = base.find(q => q.q === k); if (f) reordered.push(f); });
       base.forEach(q => { if (!reordered.includes(q)) reordered.push(q); });
       questions = reordered;
     }
-    state = saved.state || {};
     return true;
   } catch(e) { return false; }
 }
@@ -1758,7 +1759,6 @@ function filterAndRender() {
   questions = currentTopic === "All"
     ? [...ALL_QUESTIONS]
     : ALL_QUESTIONS.filter(q => q.topic === currentTopic);
-  state = {};
   stepIndex = 0;
   stepSelected = [];
   updateStats();
@@ -1770,7 +1770,6 @@ function filterAndRender() {
 
 function shuffleQuestions() {
   questions = [...questions].sort(() => Math.random() - 0.5);
-  state = {};
   stepIndex = 0;
   stepSelected = [];
   updateStats();
@@ -1784,7 +1783,7 @@ function resetAll() {
   questions = currentTopic === "All"
     ? [...ALL_QUESTIONS]
     : ALL_QUESTIONS.filter(q => q.topic === currentTopic);
-  state = {};
+  answers = {};
   stepIndex = 0;
   stepSelected = [];
   updateStats();
@@ -1821,7 +1820,7 @@ function renderQuiz() {
 }
 
 function renderQuestion(q, i) {
-  const s = state[i];
+  const s = getState(i);
   let cardClass = "question-card";
   if (s) {
     cardClass += s.correct ? " answered-correct" : " answered-wrong";
@@ -1886,12 +1885,12 @@ function renderQuestion(q, i) {
 }
 
 function selectOption(qi, oi) {
-  if (state[qi]) return;
+  if (getState(qi)) return;
   const q = questions[qi];
   if (q.type === "single") {
     const selected = [oi];
     const correct = arraysMatch(selected, q.correct);
-    state[qi] = { selected, correct };
+    setState(qi, { selected, correct });
     updateCard(qi);
     updateStats();
     saveSession();
@@ -1909,7 +1908,7 @@ function selectOption(qi, oi) {
 }
 
 function submitMulti(qi) {
-  if (state[qi]) return;
+  if (getState(qi)) return;
   const q = questions[qi];
   const card = document.getElementById(`q-card-${qi}`);
   const selected = [];
@@ -1918,7 +1917,7 @@ function submitMulti(qi) {
   });
   if (selected.length === 0) return;
   const correct = arraysMatch(selected, q.correct);
-  state[qi] = { selected, correct };
+  setState(qi, { selected, correct });
   updateCard(qi);
   updateStats();
   saveSession();
@@ -1937,7 +1936,7 @@ function updateCard(qi) {
 }
 
 function updateStats() {
-  const answered = Object.values(state);
+  const answered = questions.map((q, i) => getState(i)).filter(Boolean);
   const correct = answered.filter(s => s.correct).length;
   const wrong = answered.filter(s => !s.correct).length;
   const remaining = questions.length - answered.length;
@@ -1956,7 +1955,7 @@ function updateStats() {
 }
 
 function showResults() {
-  const answered = Object.values(state);
+  const answered = questions.map((q, i) => getState(i)).filter(Boolean);
   const correct = answered.filter(s => s.correct).length;
   const wrong = answered.filter(s => !s.correct).length;
   const skip = questions.length - answered.length;
@@ -2029,7 +2028,7 @@ function renderStep() {
 function renderStepDots() {
   const row = document.getElementById("step-dot-row");
   row.innerHTML = questions.map((q, i) => {
-    const s = state[i];
+    const s = getState(i);
     let cls = "step-dot";
     if (i === stepIndex) cls += " current";
     else if (s && s.correct) cls += " dot-correct";
@@ -2041,7 +2040,7 @@ function renderStepDots() {
 function jumpStep(i) {
   stepIndex = i;
   stepSelected = [];
-  const s = state[i];
+  const s = getState(i);
   if (s) stepSelected = [...s.selected];
   saveSession();
   renderStepDots();
@@ -2052,7 +2051,7 @@ function jumpStep(i) {
 function renderStepCard() {
   const wrap = document.getElementById("step-card-wrap");
   const q = questions[stepIndex];
-  const s = state[stepIndex];
+  const s = getState(stepIndex);
   const isAnswered = !!s;
   const isMulti = q.type === "multi";
   const topicShort = q.topic.replace(/Lecture \d+\/?[\d]* — /, "");
@@ -2142,7 +2141,7 @@ function stepSelectOption(oi) {
   if (q.type === "single") {
     stepSelected = [oi];
     const correct = arraysMatch(stepSelected, q.correct);
-    state[stepIndex] = { selected: stepSelected, correct };
+    setState(stepIndex, { selected: stepSelected, correct });
     updateStats();
     saveSession();
     renderStepDots();
@@ -2161,7 +2160,7 @@ function stepSubmitMulti() {
   if (stepSelected.length === 0) return;
   const q = questions[stepIndex];
   const correct = arraysMatch(stepSelected, q.correct);
-  state[stepIndex] = { selected: [...stepSelected], correct };
+  setState(stepIndex, { selected: [...stepSelected], correct });
   updateStats();
   saveSession();
   renderStepDots();
@@ -2171,7 +2170,8 @@ function stepSubmitMulti() {
 function stepNext() {
   if (stepIndex < questions.length - 1) {
     stepIndex++;
-    stepSelected = state[stepIndex] ? [...state[stepIndex].selected] : [];
+    const s = getState(stepIndex);
+    stepSelected = s ? [...s.selected] : [];
     saveSession();
     renderStepDots();
     renderStepCard();
@@ -2182,7 +2182,8 @@ function stepNext() {
 function stepPrev() {
   if (stepIndex > 0) {
     stepIndex--;
-    stepSelected = state[stepIndex] ? [...state[stepIndex].selected] : [];
+    const s = getState(stepIndex);
+    stepSelected = s ? [...s.selected] : [];
     saveSession();
     renderStepDots();
     renderStepCard();
