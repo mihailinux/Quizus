@@ -1,0 +1,2127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Embedded Systems Quiz — POLITEHNICA București</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f8f7f4;
+    --surface: #ffffff;
+    --surface2: #f2f1ee;
+    --border: rgba(0,0,0,0.10);
+    --border-strong: rgba(0,0,0,0.18);
+    --text: #1a1a18;
+    --text-muted: #6b6b66;
+    --text-hint: #999992;
+    --accent: #4f46e5;
+    --accent-light: #eeedfe;
+    --accent-border: #afa9ec;
+    --success: #0f6e56;
+    --success-bg: #e1f5ee;
+    --success-border: #5dcaa5;
+    --danger: #a32d2d;
+    --danger-bg: #fcebeb;
+    --danger-border: #f09595;
+    --warning: #854f0b;
+    --warning-bg: #faeeda;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a18;
+      --surface: #242422;
+      --surface2: #2e2e2b;
+      --border: rgba(255,255,255,0.10);
+      --border-strong: rgba(255,255,255,0.18);
+      --text: #f0efe8;
+      --text-muted: #a8a89f;
+      --text-hint: #666660;
+      --accent: #7f77dd;
+      --accent-light: #26215c;
+      --accent-border: #534ab7;
+      --success: #9fe1cb;
+      --success-bg: #04342c;
+      --success-border: #0f6e56;
+      --danger: #f09595;
+      --danger-bg: #501313;
+      --danger-border: #a32d2d;
+      --warning: #fac775;
+      --warning-bg: #412402;
+    }
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 0.5px solid var(--border);
+    padding: 1.25rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left h1 {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+
+  .header-left p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .progress-ring {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .score-badge {
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 0.5px solid var(--accent-border);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  #progress-bar-wrap {
+    width: 120px;
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  #progress-bar {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+
+  .progress-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    min-width: 50px;
+    text-align: right;
+  }
+
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  .topic-filter {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 1.75rem;
+  }
+
+  .topic-btn {
+    background: var(--surface);
+    border: 0.5px solid var(--border-strong);
+    color: var(--text-muted);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+
+  .topic-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .topic-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 500;
+  }
+
+  .quiz-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .controls-left {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .btn {
+    background: var(--surface);
+    border: 0.5px solid var(--border-strong);
+    color: var(--text);
+    border-radius: var(--radius-sm);
+    padding: 7px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn:hover { background: var(--surface2); }
+  .btn:active { transform: scale(0.98); }
+
+  .btn-accent {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .btn-accent:hover { opacity: 0.9; background: var(--accent); }
+
+  .mode-toggle {
+    display: flex;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+    gap: 2px;
+  }
+
+  .mode-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  .mode-btn.active {
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 500;
+    box-shadow: 0 0 0 0.5px var(--border);
+  }
+
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 1.75rem;
+  }
+
+  .stat {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  .stat.correct .stat-num { color: var(--success); }
+  .stat.wrong .stat-num { color: var(--danger); }
+  .stat.skipped .stat-num { color: var(--text-muted); }
+
+  .question-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.2s;
+  }
+
+  .question-card.answered-correct {
+    border-color: var(--success-border);
+    background: var(--success-bg);
+  }
+
+  .question-card.answered-wrong {
+    border-color: var(--danger-border);
+    background: var(--danger-bg);
+  }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .q-topic-tag {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--accent);
+    background: var(--accent-light);
+    border: 0.5px solid var(--accent-border);
+    border-radius: 12px;
+    padding: 2px 10px;
+  }
+
+  .q-type-tag {
+    font-size: 12px;
+    color: var(--text-hint);
+  }
+
+  .q-text {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--bg);
+    user-select: none;
+  }
+
+  .option:hover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .option.selected {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .option.correct {
+    border-color: var(--success-border);
+    background: var(--success-bg);
+  }
+
+  .option.wrong {
+    border-color: var(--danger-border);
+    background: var(--danger-bg);
+  }
+
+  .option.revealed-correct {
+    border-color: var(--success-border);
+    background: var(--success-bg);
+  }
+
+  .option-marker {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-strong);
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+
+  .option.selected .option-marker {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .option.correct .option-marker,
+  .option.revealed-correct .option-marker {
+    background: var(--success);
+    border-color: var(--success);
+    color: #fff;
+  }
+
+  .option.wrong .option-marker {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: #fff;
+  }
+
+  .multi-marker {
+    border-radius: 4px;
+  }
+
+  .option-text {
+    font-size: 14px;
+    line-height: 1.5;
+    padding-top: 1px;
+  }
+
+  .q-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 1rem;
+  }
+
+  .feedback-msg {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    display: none;
+  }
+
+  .feedback-msg.show { display: block; }
+
+  .feedback-msg.correct {
+    background: var(--success-bg);
+    color: var(--success);
+    border: 0.5px solid var(--success-border);
+  }
+
+  .feedback-msg.wrong {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border: 0.5px solid var(--danger-border);
+  }
+
+  .flashcard-view { display: none; }
+
+  .flashcard {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+
+  .flashcard:hover { border-color: var(--accent); }
+
+  .fc-side-label {
+    position: absolute;
+    top: 14px;
+    left: 18px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-hint);
+  }
+
+  .fc-question {
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+  }
+
+  .fc-hint {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 0.75rem;
+  }
+
+  .fc-answer {
+    display: none;
+  }
+
+  .fc-answer.visible {
+    display: block;
+  }
+
+  .fc-answer-text {
+    font-size: 15px;
+    color: var(--success);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .fc-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 0.5rem;
+  }
+
+  .fc-counter {
+    font-size: 14px;
+    color: var(--text-muted);
+    min-width: 80px;
+    text-align: center;
+  }
+
+  .results-screen {
+    display: none;
+    text-align: center;
+    padding: 3rem 1rem;
+  }
+
+  .results-screen.show { display: block; }
+
+  .result-score {
+    font-size: 64px;
+    font-weight: 700;
+    letter-spacing: -2px;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .result-label {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .result-sub {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+  }
+
+  .result-breakdown {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 1.5rem 0 2rem;
+    flex-wrap: wrap;
+  }
+
+  .rb-item { text-align: center; }
+  .rb-num { font-size: 28px; font-weight: 600; letter-spacing: -0.5px; }
+  .rb-label { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+  }
+
+  .step-view { display: none; }
+
+  .step-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.3s, background 0.3s;
+  }
+
+  .step-card.answered-correct {
+    border-color: var(--success-border);
+    background: var(--success-bg);
+  }
+
+  .step-card.answered-wrong {
+    border-color: var(--danger-border);
+    background: var(--danger-bg);
+  }
+
+  .step-q-num {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-hint);
+    margin-bottom: 6px;
+  }
+
+  .step-q-text {
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    color: var(--text);
+  }
+
+  .step-type-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .step-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+
+  .step-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--bg);
+    user-select: none;
+  }
+
+  .step-option:hover { border-color: var(--accent); background: var(--accent-light); }
+  .step-option.selected { border-color: var(--accent); background: var(--accent-light); }
+  .step-option.correct { border-color: var(--success-border); background: var(--success-bg); }
+  .step-option.wrong { border-color: var(--danger-border); background: var(--danger-bg); }
+  .step-option.revealed-correct { border-color: var(--success-border); background: var(--success-bg); }
+  .step-option.locked { cursor: default; }
+
+  .step-option-marker {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-strong);
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+
+  .step-option.selected .step-option-marker { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .step-option.correct .step-option-marker,
+  .step-option.revealed-correct .step-option-marker { background: var(--success); border-color: var(--success); color: #fff; }
+  .step-option.wrong .step-option-marker { background: var(--danger); border-color: var(--danger); color: #fff; }
+
+  .step-option-marker.sq { border-radius: 5px; }
+
+  .step-option-text { font-size: 15px; line-height: 1.5; padding-top: 1px; }
+
+  .step-feedback {
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    margin-bottom: 1.25rem;
+    display: none;
+    line-height: 1.5;
+  }
+
+  .step-feedback.show { display: block; }
+  .step-feedback.correct { background: var(--success-bg); color: var(--success); border: 0.5px solid var(--success-border); }
+  .step-feedback.wrong { background: var(--danger-bg); color: var(--danger); border: 0.5px solid var(--danger-border); }
+
+  .step-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .step-nav-left { display: flex; gap: 8px; }
+
+  .step-dot-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 1.5rem;
+    max-height: 56px;
+    overflow: hidden;
+  }
+
+  .step-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 0.5px solid var(--border-strong);
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .step-dot.current { background: var(--accent); border-color: var(--accent); }
+  .step-dot.dot-correct { background: var(--success); border-color: var(--success); }
+  .step-dot.dot-wrong { background: var(--danger); border-color: var(--danger); }
+
+  @media (max-width: 560px) {
+    header { padding: 1rem; flex-wrap: wrap; gap: 8px; }
+    main { padding: 1.25rem 1rem 3rem; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .question-card { padding: 1.1rem; }
+    .step-card { padding: 1.25rem; }
+    .step-q-text { font-size: 16px; }
+    #progress-bar-wrap { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Embedded Systems Quiz</h1>
+    <p>POLITEHNICA București — All lecture topics</p>
+  </div>
+  <div class="progress-ring">
+    <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+    <span class="progress-text" id="progress-text">0 / 0</span>
+    <span class="score-badge" id="score-badge">Score: 0%</span>
+  </div>
+</header>
+
+<main>
+  <div class="topic-filter" id="topic-filter"></div>
+
+  <div class="quiz-controls">
+    <div class="controls-left">
+      <button class="btn btn-accent" onclick="shuffleQuestions()">⟳ Shuffle</button>
+      <button class="btn" onclick="resetAll()">Reset</button>
+      <button class="btn" onclick="showResults()">Results</button>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" onclick="setMode('quiz')" id="mode-quiz">All questions</button>
+      <button class="mode-btn" onclick="setMode('step')" id="mode-step">One by one</button>
+      <button class="mode-btn" onclick="setMode('flashcard')" id="mode-flashcard">Flashcards</button>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat correct"><div class="stat-num" id="stat-correct">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat wrong"><div class="stat-num" id="stat-wrong">0</div><div class="stat-label">Wrong</div></div>
+    <div class="stat skipped"><div class="stat-num" id="stat-remaining">0</div><div class="stat-label">Remaining</div></div>
+    <div class="stat"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+  </div>
+
+  <div id="quiz-view"></div>
+
+  <div class="flashcard-view" id="flashcard-view">
+    <div class="flashcard" id="fc-card" onclick="toggleFlashcard()">
+      <span class="fc-side-label" id="fc-side-label">Question</span>
+      <div class="fc-question" id="fc-question"></div>
+      <div class="fc-hint" id="fc-hint">Click to reveal answer</div>
+      <div class="fc-answer" id="fc-answer">
+        <div class="fc-answer-text" id="fc-answer-text"></div>
+      </div>
+    </div>
+    <div class="fc-nav">
+      <button class="btn" onclick="fcNav(-1)">← Prev</button>
+      <span class="fc-counter" id="fc-counter">1 / 1</span>
+      <button class="btn" onclick="fcNav(1)">Next →</button>
+    </div>
+  </div>
+
+  <div class="step-view" id="step-view">
+    <div class="step-dot-row" id="step-dot-row"></div>
+    <div id="step-card-wrap"></div>
+  </div>
+
+  <div class="results-screen" id="results-screen">
+    <div class="result-score" id="res-pct">0%</div>
+    <div class="result-label" id="res-label">Keep practising!</div>
+    <div class="result-sub" id="res-sub"></div>
+    <div class="result-breakdown">
+      <div class="rb-item"><div class="rb-num" style="color:var(--success)" id="res-correct">0</div><div class="rb-label">Correct</div></div>
+      <div class="rb-item"><div class="rb-num" style="color:var(--danger)" id="res-wrong">0</div><div class="rb-label">Wrong</div></div>
+      <div class="rb-item"><div class="rb-num" style="color:var(--text-muted)" id="res-skip">0</div><div class="rb-label">Skipped</div></div>
+    </div>
+    <button class="btn btn-accent" onclick="resetAll()">Try again</button>
+  </div>
+</main>
+
+<script>
+const ALL_QUESTIONS = [
+  {
+    topic: "Lecture 1 — Hardware Basics",
+    type: "single",
+    q: "What is a register?",
+    options: ["A variable inside a processor", "A cache memory", "A journal file", "A database"],
+    correct: [0]
+  },
+  {
+    topic: "Lecture 1 — Hardware Basics",
+    type: "multi",
+    q: "What are the actions (instructions) that a processor can perform?",
+    options: ["Memory access", "Draw on a screen", "Control hardware", "Math"],
+    correct: [0, 3]
+  },
+  {
+    topic: "Lecture 1 — Hardware Basics",
+    type: "single",
+    q: "The ATMega328P processor's word size is:",
+    options: ["64 bits", "16 bits", "8 bits", "32 bits"],
+    correct: [2]
+  },
+  {
+    topic: "Lecture 1 — Hardware Basics",
+    type: "single",
+    q: "The RP2040 processor's word size is:",
+    options: ["32 bits", "8 bits", "64 bits", "16 bits"],
+    correct: [0]
+  },
+  {
+    topic: "Lecture 1 — Hardware Basics",
+    type: "single",
+    q: "The RP2350 processor's word size is:",
+    options: ["32 bits", "16 bits", "64 bits", "8 bits"],
+    correct: [0]
+  },
+  {
+    topic: "Lecture 1 — Hardware Basics",
+    type: "single",
+    q: "The 8051 processor's word size is:",
+    options: ["8 bits", "16 bits", "64 bits", "32 bits"],
+    correct: [0]
+  },
+  {
+    topic: "Lecture 1 — Hardware Basics",
+    type: "multi",
+    q: "A microcontroller:",
+    options: ["Is good for controlling hardware", "Requires an operating system", "Is expensive", "Good for intensive computations", "Has a lot of I/O ports"],
+    correct: [0, 4]
+  },
+  {
+    topic: "Lecture 1 — Hardware Basics",
+    type: "multi",
+    q: "A microprocessor:",
+    options: ["Requires an operating system", "Is good for controlling hardware", "Is not expensive", "Good for intensive computations", "Has a lot of I/O ports"],
+    correct: [0, 3]
+  },
+  {
+    topic: "Lecture 1 — Hardware Basics",
+    type: "single",
+    q: "RP2350 is a:",
+    options: ["A computer similar to a phone", "A board that has a microcontroller", "A processor", "A microcontroller"],
+    correct: [3]
+  },
+  {
+    topic: "Lecture 1 — Hardware Basics",
+    type: "multi",
+    q: "The Raspberry Pi Pico 2 is:",
+    options: ["A processor", "A board that has a microcontroller", "Similar to an Arduino", "A computer similar to a phone", "A microcontroller"],
+    correct: [1, 2]
+  },
+  {
+    topic: "Lecture 1 — Hardware Basics",
+    type: "single",
+    q: "The Raspberry Pi 5 is:",
+    options: ["A computer similar to a phone", "A microcontroller", "A board that has a microcontroller", "A processor"],
+    correct: [0]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "single",
+    q: "Bare metal programming means:",
+    options: ["Using an operating system and writing drivers for it", "Writing software directly for hardware", "Using a framework like embassy-rs or Arduino", "Reading and writing to the memory of a peripheral"],
+    correct: [1]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "single",
+    q: "What does Memory Mapped IO mean?",
+    options: ["Reading and writing data to the same memory space where a peripheral does", "Reading and writing to a the memory of a peripheral", "Reading and writing data to peripherals as if it where a RAM area", "Reading and writing to certain parts of the RAM"],
+    correct: [2]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "single",
+    q: "How does the MCU communicate with a peripheral?",
+    options: ["Using a special IO communication channel", "Using reads and write to a certain RAM memory area", "Using IO ports", "Using reads and write as if it where writing into the RAM memory"],
+    correct: [3]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "multi",
+    q: "Why do we need volatile reads and writes?",
+    options: ["To use special MCU instructions that send data to peripherals", "To make sure the compiler does not reorganize the writes", "To avoid storing the written data", "To make sure the MCU's cache is actually sending the data to the system bus", "To perform writes as fast as possible"],
+    correct: [1, 3]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "multi",
+    q: "Why do we need volatile reads?",
+    options: ["To use special MCU instructions that receive data from peripherals", "To make sure the MCU's cache is actually reading the data from the system bus", "To make sure the compiler does not reorganize the reads", "To perform reads as fast as possible", "To avoid storing the read data"],
+    correct: [2, 1]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "multi",
+    q: "Why do we want to use normal reads instead of volatile reads?",
+    options: ["To use special MCU instructions that read data from peripherals", "To make sure the MCU's cache is actually reading the data from the system bus", "To make sure the compiler can optimize the code", "To make sure the compiler does not reorganize the reads", "To perform reads as fast as possible"],
+    correct: [2, 4]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "single",
+    q: "R is an 8-bit register, what does write(R, 5) do?",
+    options: ["Writes 5 bits of 1 to the register", "Sets bit 5 to 1 in the register", "Writes 00100000 to the register", "Writes 00000101 to the register"],
+    correct: [3]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "single",
+    q: "R is an 8-bit register, what does write(R, 1 << 5) do?",
+    options: ["Sets bit 5 to 1 in the register", "Writes 00010000 to the register", "Writes 5 to the first field of the register", "Writes 00100000 to the register"],
+    correct: [3]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "single",
+    q: "R is an 8-bit register, what does write(R, !5) do?",
+    options: ["Writes 5 bits of 0 to the register", "Writes 11111010 to the register", "Sets bit 5 to 0 in the register", "Writes 11011111 to the register"],
+    correct: [1]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "multi",
+    q: "What does the Pad peripherals of RP2040/RP2350 do?",
+    options: ["Link the inner peripherals to the MCU pins", "Set the pin's values to HIGH and LOW", "Set the pull up or down interior resistor", "Select the function of the MCU pins", "Set the electrical properties of the MCU pins", "Set the pins into Input or Output mode"],
+    correct: [2, 4]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "multi",
+    q: "What does the IO Bank0 peripherals of RP2350 do?",
+    options: ["Select the function of the MCU pins", "Set the electrical properties of the MCU pins", "Set the pull up or down interior resistor", "Set the pins into Input or Output mode", "Set the pin's values to HIGH and LOW", "Link the inner peripherals to the MCU pins"],
+    correct: [0, 5]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "multi",
+    q: "What does the SIO peripherals of RP2350 do?",
+    options: ["Set the pin's values to HIGH and LOW", "Select the function of the MCU pins", "Set the pull up or down interior resistor", "Set the pins into Input or Output mode", "Link the inner peripherals to the MCU pins", "Set the electrical properties of the MCU pins"],
+    correct: [0, 3]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "multi",
+    q: "In bare metal Rust, the main function's definition is:",
+    options: ["public void main()", "void main()", "start() -> !", "fn main() -> !", "void start()", "fn main()"],
+    correct: [3, 2]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "multi",
+    q: "In bare metal Rust, the main function:",
+    options: ["The main function may have any name", "Returns negative number when it wants to reset the MCU", "Returns number different from 0 when it wants to reset the MCU", "Is prefixed by a special macro", "The main function is called start"],
+    correct: [0, 3]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "multi",
+    q: "In embassy-rs, the main function's definition is:",
+    options: ["void main()", "start() -> !", "fn start()", "fn main()", "public void main()", "void start()", "fn main() -> !"],
+    correct: [3, 2]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "single",
+    q: "The tock-registers crate:",
+    options: ["Includes drivers", "Is generated automatically", "Is a minimal operating system for small devices", "Is a framework for controlling hardware", "Is a library that makes accessing registers easier"],
+    correct: [4]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "multi",
+    q: "The tock-registers crate (select all true):",
+    options: ["Is a library that makes accessing registers easier", "Includes drivers", "Is a minimal operating system for small devices", "Is generated automatically", "Is a framework for controlling hardware"],
+    correct: [0, 3]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "multi",
+    q: "Which one of the following crates is a HAL implementation?",
+    options: ["cortex-m-rt", "tock-registers", "defmt", "rp2350_hal", "embassy_rp", "embassy"],
+    correct: [3, 4]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "multi",
+    q: "Embassy-rs:",
+    options: ["Is a minimal operating system for small devices", "Includes drivers", "Is a framework for controlling hardware", "Is a library that makes accessing registers easier", "Is generated automatically"],
+    correct: [1, 2]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "multi",
+    q: "The platform access crate:",
+    options: ["Is generated automatically", "Is a framework for controlling hardware", "Is a minimal operating system for small devices", "Is a library that makes accessing registers easier", "Includes drivers"],
+    correct: [0, 3]
+  },
+  {
+    topic: "Lecture 3 — PWM, ADC & Interrupts",
+    type: "multi",
+    q: "The purpose of PWM is to:",
+    options: ["Generate digital pulses", "Digitally simulate an analog signal", "Digitally generate an analog signal", "Sample an analog signal"],
+    correct: [0, 1]
+  },
+  {
+    topic: "Lecture 3 — PWM, ADC & Interrupts",
+    type: "multi",
+    q: "PWM can be used to:",
+    options: ["Control the intensity of LEDs", "Control the RPM of motors", "Generate a voltage between 0 V and X V (X being the max voltage of the MCU)", "Control analog devices"],
+    correct: [0, 1]
+  },
+  {
+    topic: "Lecture 3 — PWM, ADC & Interrupts",
+    type: "single",
+    q: "The duty cycle of a PWM means:",
+    options: ["The amount of time the signal is high", "The percentage of each period of time when the signal is high", "The amount of cycles per second", "The output voltage"],
+    correct: [1]
+  },
+  {
+    topic: "Lecture 3 — PWM, ADC & Interrupts",
+    type: "single",
+    q: "The period of a PWM means:",
+    options: ["The time interval when the signal repeats", "The amount of cycles per second", "The number of times the signal repeats per second", "The output voltage"],
+    correct: [0]
+  },
+  {
+    topic: "Lecture 3 — PWM, ADC & Interrupts",
+    type: "single",
+    q: "A two channel PWM device can generate two PWM signals:",
+    options: ["With the same frequency, but different duty cycles", "With different frequencies, but the same duty cycle", "With different periods, but the same duty cycle", "That are independent"],
+    correct: [0]
+  },
+  {
+    topic: "Lecture 3 — PWM, ADC & Interrupts",
+    type: "single",
+    q: "The purpose of ADC is to:",
+    options: ["Sample an analog signal", "Digitally simulate an analog signal", "Generate digital pulses", "Digitally generate an analog signal"],
+    correct: [0]
+  },
+  {
+    topic: "Lecture 3 — PWM, ADC & Interrupts",
+    type: "single",
+    q: "The sampling frequency of an ADC means:",
+    options: ["The values interval of each sample", "How fast the ADC converts the signal", "How many data points the ADC reads per second"],
+    correct: [2]
+  },
+  {
+    topic: "Lecture 3 — PWM, ADC & Interrupts",
+    type: "single",
+    q: "The number of bits of an ADC means:",
+    options: ["How many data points the ADC reads per second", "The values interval of each sample", "How fast the ADC converts the signal"],
+    correct: [1]
+  },
+  {
+    topic: "Lecture 3 — PWM, ADC & Interrupts",
+    type: "single",
+    q: "The minimum number of bits of an ADC is:",
+    options: ["1", "12", "Does not exist", "8", "10"],
+    correct: [0]
+  },
+  {
+    topic: "Lecture 3 — PWM, ADC & Interrupts",
+    type: "single",
+    q: "The minimum sampling frequency of an ADC is:",
+    options: ["5 times the highest frequency of the signal", "3 times the highest frequency of the signal", "The highest frequency of the signal", "2 times the highest frequency of the signal"],
+    correct: [3]
+  },
+  {
+    topic: "Lecture 3 — PWM, ADC & Interrupts",
+    type: "single",
+    q: "SysTick is:",
+    options: ["A real time clock signal", "A counter that counts downwards every microsecond", "A counter", "A clock signal", "A counter that counts upwards every microsecond"],
+    correct: [1]
+  },
+  {
+    topic: "Lecture 3 — PWM, ADC & Interrupts",
+    type: "single",
+    q: "The input signal of a counter is:",
+    options: ["A clock signal", "An external interrupt", "An exception signal", "A signal that provides a falling edge or a rising edge", "A counter signal"],
+    correct: [3]
+  },
+  {
+    topic: "Lecture 3 — PWM, ADC & Interrupts",
+    type: "single",
+    q: "The input signal of an alarm is:",
+    options: ["An exception signal", "An external interrupt", "A counter signal", "A signal that provides a falling edge or a rising edge", "A clock signal"],
+    correct: [4]
+  },
+  {
+    topic: "Lecture 3 — PWM, ADC & Interrupts",
+    type: "multi",
+    q: "What is the role of the NVIC?",
+    options: ["Execute the interrupt handlers", "Receive interrupts and store them in a vector", "Prioritize interrupts", "Receive interrupts from peripherals and send them to the MCU"],
+    correct: [2, 3]
+  },
+  {
+    topic: "Lecture 3 — PWM, ADC & Interrupts",
+    type: "single",
+    q: "How many interrupt pins does the ARM Cortex M0+ processor have?",
+    options: ["32", "0", "10", "1", "26"],
+    correct: [3]
+  },
+  {
+    topic: "Lecture 4 — Async & Embassy",
+    type: "single",
+    q: "How is an async function different from a normal function in Rust?",
+    options: ["It receives a Future as parameter", "It is not different", "The function can be stopped anytime and continued", "The function stops at certain fixed points within its code and can continue"],
+    correct: [3]
+  },
+  {
+    topic: "Lecture 4 — Async & Embassy",
+    type: "single",
+    q: "How is an async function transformed in Rust?",
+    options: ["Into a data type that implements the Future trait", "Into a function that returns the Future data type", "It is not transformed", "Into a function that returns a data type that implements the Future trait", "Into the Future data type"],
+    correct: [3]
+  },
+  {
+    topic: "Lecture 4 — Async & Embassy",
+    type: "single",
+    q: "What does the .await keyword do?",
+    options: ["Returns from an async function", "Suspends an async function and requires it to continue from the start of the function", "Suspends an async function and allows it to continue next time from that point", "It is optional"],
+    correct: [2]
+  },
+  {
+    topic: "Lecture 4 — Async & Embassy",
+    type: "single",
+    q: "What happens if we do not use the .await keyword when calling an async function?",
+    options: ["It works the same as if the keyword was used", "It gives a compilation error", "The function executes, but returns a Future", "The function does not execute"],
+    correct: [2]
+  },
+  {
+    topic: "Lecture 4 — Async & Embassy",
+    type: "multi",
+    q: "Where can the .await keyword be used?",
+    options: ["Anywhere in the code", "Anywhere in a function", "In an async function", "Within a data type that implements the Future trait", "In an async block", "Within a function that returns a Future"],
+    correct: [2, 4]
+  },
+  {
+    topic: "Lecture 4 — Async & Embassy",
+    type: "multi",
+    q: "What is the role of a Futures executor?",
+    options: ["Poll Futures until they stop", "Ask the OS for tasks and execute them", "Hold a queue of Futures", "Poll Futures until they return Ready"],
+    correct: [2, 3]
+  },
+  {
+    topic: "Lecture 4 — Async & Embassy",
+    type: "single",
+    q: "What do we need within a Rust program to be able to use async functions?",
+    options: ["A OS scheduler", "Nothing, Rust knows how to use them", "An executor library", "Use .await on them"],
+    correct: [2]
+  },
+  {
+    topic: "Lecture 4 — Async & Embassy",
+    type: "multi",
+    q: "When using a preemptive executor:",
+    options: ["Switching between tasks is expensive", "We can take advantage of a multi core MCU", "Tasks need to be aware that there is an executor", "Switching between tasks is cheap"],
+    correct: [0, 1]
+  },
+  {
+    topic: "Lecture 4 — Async & Embassy",
+    type: "multi",
+    q: "When using a non-preemptive executor:",
+    options: ["Tasks need to be aware that there is an executor", "We can take advantage of a multi core MCU", "Switching between tasks is expensive", "Switching between tasks is cheap"],
+    correct: [0, 3]
+  },
+  {
+    topic: "Lecture 4 — Async & Embassy",
+    type: "multi",
+    q: "A non-preemptive executor:",
+    options: ["Cannot be blocked by a task", "Allows a task to block other tasks", "Cannot stop tasks at any time", "Can stop tasks at any time"],
+    correct: [1, 2]
+  },
+  {
+    topic: "Lecture 4 — Async & Embassy",
+    type: "multi",
+    q: "A preemptive executor:",
+    options: ["Cannot be blocked by a task", "Cannot stop tasks at any time", "Allows a task to block other tasks", "Can stop tasks at any time"],
+    correct: [0, 3]
+  },
+  {
+    topic: "Lecture 4 — Async & Embassy",
+    type: "multi",
+    q: "How can a task block/stop the executor?",
+    options: ["A task is not allowed to stop the executor", "By performing an illegal memory access", "By never using .await", "By performing an infinite loop within a poll function"],
+    correct: [1, 3]
+  },
+  {
+    topic: "Lecture 4 — Async & Embassy",
+    type: "single",
+    q: "In Embassy, a Channel is:",
+    options: ["A way to send data from multiple tasks to multiple other tasks at the same time", "A way to send data from a task to another task", "A way to send data from multiple tasks to a single other task at the same time", "An ADC component", "A PWM component"],
+    correct: [2]
+  },
+  {
+    topic: "Lecture 4 — Async & Embassy",
+    type: "single",
+    q: "In Embassy, a PubSubChannel is:",
+    options: ["An ADC component that publishes the read data", "A way to send data from multiple tasks to multiple other tasks at the same time", "A way to send data from a task to another task", "A way to send data from multiple tasks to a single another task at the same time", "A PWM component that controls several pins"],
+    correct: [1]
+  },
+  {
+    topic: "Lecture 4 — Async & Embassy",
+    type: "single",
+    q: "Mutexes are used to:",
+    options: ["Block another task", "Protect the executor from multiple concurrent accesses", "Prevent tasks from using global data at the same time", "Prevent other tasks from using local data at the same time"],
+    correct: [2]
+  },
+  {
+    topic: "Lecture 5 — SPI, UART & Sensors",
+    type: "multi",
+    q: "What wires are used for SPI?",
+    options: ["MISO", "CLK", "MOSI", "TX", "RX"],
+    correct: [0, 1, 2]
+  },
+  {
+    topic: "Lecture 5 — SPI, UART & Sensors",
+    type: "multi",
+    q: "What wires are used for UART?",
+    options: ["MOSI", "RX", "TX", "MISO", "CLK"],
+    correct: [1, 2]
+  },
+  {
+    topic: "Lecture 5 — SPI, UART & Sensors",
+    type: "multi",
+    q: "SPI receiving and transmission is:",
+    options: ["Half duplex", "Asynchronous with regards to each other", "Duplex", "Synchronous with regards to each other", "One way"],
+    correct: [2, 3]
+  },
+  {
+    topic: "Lecture 5 — SPI, UART & Sensors",
+    type: "multi",
+    q: "UART receiving and transmission is:",
+    options: ["Duplex", "Asynchronous with regards to each other", "Synchronous with regards to each other", "Half duplex", "One way"],
+    correct: [0, 1]
+  },
+  {
+    topic: "Lecture 5 — SPI, UART & Sensors",
+    type: "single",
+    q: "For SPI, the clock signal is sent between devices:",
+    options: ["Using one of the reception lines", "Using one of the transmission lines", "Each device has its own clock", "Using a special clock line"],
+    correct: [3]
+  },
+  {
+    topic: "Lecture 5 — SPI, UART & Sensors",
+    type: "single",
+    q: "For UART, the clock signal is sent between devices:",
+    options: ["Using a special clock line", "Using one of the reception lines", "Each device has its own clock", "Using one of the transmission lines"],
+    correct: [2]
+  },
+  {
+    topic: "Lecture 5 — SPI, UART & Sensors",
+    type: "single",
+    q: "How many bits long can be a SPI reception or transmission?",
+    options: ["7", "There is no bits limit", "11", "5", "20", "9"],
+    correct: [1]
+  },
+  {
+    topic: "Lecture 5 — SPI, UART & Sensors",
+    type: "multi",
+    q: "What is the possible length in bits for the UART payload (useful data)?",
+    options: ["5", "20", "11", "9", "There is no bits limit", "7"],
+    correct: [0, 3, 5]
+  },
+  {
+    topic: "Lecture 5 — SPI, UART & Sensors",
+    type: "multi",
+    q: "How many bits long can be a UART parity symbol?",
+    options: ["1", "0", "There is no bits limit", "3", "2"],
+    correct: [0, 1]
+  },
+  {
+    topic: "Lecture 5 — SPI, UART & Sensors",
+    type: "single",
+    q: "Which is the maximum number of nodes that can be involved in a SPI transmission?",
+    options: ["3", "4", "There is no nodes limit", "5", "2"],
+    correct: [2]
+  },
+  {
+    topic: "Lecture 5 — SPI, UART & Sensors",
+    type: "single",
+    q: "Which is the maximum number of nodes that can be involved in a UART transmission?",
+    options: ["There is no nodes limit", "4", "2", "5", "3"],
+    correct: [2]
+  },
+  {
+    topic: "Lecture 5 — SPI, UART & Sensors",
+    type: "single",
+    q: "An SPI digital sensor usually exposes:",
+    options: ["A list of registers", "An internal RAM", "Raw data"],
+    correct: [0]
+  },
+  {
+    topic: "Lecture 5 — SPI, UART & Sensors",
+    type: "single",
+    q: "A digital sensor's bus interface:",
+    options: ["Provides commands and responses", "Provides a client server interface", "Provides registers at several addresses"],
+    correct: [2]
+  },
+  {
+    topic: "Lecture 5 — SPI, UART & Sensors",
+    type: "multi",
+    q: "A digital sensor is usually composed out of:",
+    options: ["A bus interface", "A transducer", "A PWM device", "An ADC device", "A processor", "A sensor that perceives a HIGH or LOW signal", "A simpler sensor"],
+    correct: [0, 1, 3, 4]
+  },
+  {
+    topic: "Lecture 5 — SPI, UART & Sensors",
+    type: "single",
+    q: "The DMA functionality is used to:",
+    options: ["Transfer data from a memory address to another address without the need of the MCU", "Be able to access memory faster", "To access the memory without reading and writing in cache", "Be able to access peripherals' registers as if they were in the memory"],
+    correct: [0]
+  },
+  {
+    topic: "Lecture 6 — I2C & USB",
+    type: "multi",
+    q: "What wires are used for I2C?",
+    options: ["SDA", "SCL", "MOSI", "TX", "MISO", "RX"],
+    correct: [0, 1]
+  },
+  {
+    topic: "Lecture 6 — I2C & USB",
+    type: "multi",
+    q: "What wires are used for USB 2.0?",
+    options: ["DM", "CLK", "TX", "RX", "MOSI", "DP", "MISO"],
+    correct: [0, 5]
+  },
+  {
+    topic: "Lecture 6 — I2C & USB",
+    type: "multi",
+    q: "I2C receiving and transmission is:",
+    options: ["Asynchronous with regards to each other", "One way", "Duplex", "Synchronous with regards to each other", "Half duplex"],
+    correct: [3, 4]
+  },
+  {
+    topic: "Lecture 6 — I2C & USB",
+    type: "multi",
+    q: "USB receiving and transmission is:",
+    options: ["Asynchronous with regards to each other", "Half duplex", "One way", "Synchronous with regards to each other", "Duplex"],
+    correct: [1, 3]
+  },
+  {
+    topic: "Lecture 6 — I2C & USB",
+    type: "single",
+    q: "For I2C, the clock signal is sent between devices:",
+    options: ["Each device has its own clock", "Using a special clock line", "Using one of the reception lines", "Using one of the transmission lines"],
+    correct: [1]
+  },
+  {
+    topic: "Lecture 6 — I2C & USB",
+    type: "single",
+    q: "Which is usually the maximum number of nodes that can be involved in a I2C transmission?",
+    options: ["4", "2", "5", "3", "There is no nodes limit"],
+    correct: [1]
+  },
+  {
+    topic: "Lecture 6 — I2C & USB",
+    type: "single",
+    q: "How many bits long can be a I2C reception or transmission?",
+    options: ["7", "There is no bits limit", "20", "9", "11", "5"],
+    correct: [1]
+  },
+  {
+    topic: "Lecture 6 — I2C & USB",
+    type: "single",
+    q: "What does an IN transfer mean (USB)?",
+    options: ["Data is sent from the device to the host", "Data is received by the host from a network", "Data is received by the device from a network", "Data is sent from the host to the device", "Data is correctly received"],
+    correct: [0]
+  },
+  {
+    topic: "Lecture 6 — I2C & USB",
+    type: "single",
+    q: "What does an OUT transfer mean (USB)?",
+    options: ["Data is sent from the host to the device", "Data is sent from the device to a network", "Data is sent from the host to a network", "Data is sent from the device to the host", "Data is incorrectly received and it is dropped"],
+    correct: [0]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "multi",
+    q: "Which one of the following crates is a library?",
+    options: ["defmt", "rp2350_hal", "embassy", "embassy_rp", "cortex-m-rt", "tock-registers"],
+    correct: [0, 5]
+  },
+  {
+    topic: "Lecture 2 — Bare Metal & Registers",
+    type: "single",
+    q: "Why do we need volatile reads and writes? (single best answer)",
+    options: ["To use special MCU instructions that send data to peripherals", "To make sure the compiler does not reorganize the writes", "To avoid storing the written data", "To make sure the MCU's cache is actually sending the data to the system bus", "To perform writes as fast as possible"],
+    correct: [1]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "multi",
+    q: "Which of the following are valid Cortex-M0+ MPU regions? (base address must be aligned to region size; size must be a power of 2 and ≥ 256 B)",
+    options: ["base_address: 4096, length: 8 KB", "base_address: 2048, length: 1 KB", "base_address: 8192, length: 4 KB", "base_address: 1024, length: 4 KB", "base_address: 4096, length: 6 KB"],
+    correct: [1, 2]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "multi",
+    q: "Which of the following are valid Cortex-M0+ MPU regions? (set B)",
+    options: ["base_address: 4096, length: 128 B", "base_address: 8192, length: 256 B", "base_address: 8192, length: 3 KB", "base_address: 2048, length: 512 B", "base_address: 1024, length: 96 B"],
+    correct: [1, 3]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "multi",
+    q: "Which of the following are valid Cortex-M0+ MPU regions? (set C)",
+    options: ["base_address: 512, length: 5 KB", "base_address: 4096, length: 8 KB", "base_address: 8192, length: 1024 B", "base_address: 1024, length: 196 B", "base_address: 1024, length: 512 B"],
+    correct: [2, 4]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "multi",
+    q: "Which of the following are valid Cortex-M33 MPU regions? (base address must be aligned to region size; size must be a power of 2 and ≥ 32 B)",
+    options: ["base_address: 8, length: 32 B", "base_address: 96, length: 32 B", "base_address: 4, length: 32 B", "base_address: 2048, length: 32 B", "base_address: 8192, length: 64 B"],
+    correct: [1, 3, 4]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "multi",
+    q: "Which of the following are valid Cortex-M33 MPU regions? (set B)",
+    options: ["base_address: 4096, length: 16 B", "base_address: 1024, length: 8 B", "base_address: 2048, length: 32 B", "base_address: 4096, length: 4 B", "base_address: 4096, length: 1 B", "base_address: 8192, length: 64 B"],
+    correct: [2, 5]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "multi",
+    q: "Which of the following are valid Cortex-M33 MPU regions? (set C)",
+    options: ["base_address: 4096, length: 16 B", "base_address: 2048, length: 32 B", "base_address: 1024, length: 8 B", "base_address: 8, length: 4 B", "base_address: 8192, length: 64 B", "base_address: 96, length: 32 B"],
+    correct: [1, 4, 5]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "single",
+    q: "What is the number of subregions that the Cortex-M33 MPU provides?",
+    options: ["4", "0", "64", "2", "8", "No limit", "16", "32"],
+    correct: [1]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "multi",
+    q: "Which one of the regions is a valid one using a Cortex-M0+? (set A)",
+    options: ["base_address: 8192, length: 4 KB", "base_address: 4096, length: 8 KB", "base_address: 4096, length: 6 KB", "base_address: 2048, length: 1 KB", "base_address: 1024, length: 4 KB"],
+    correct: [0, 3]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "multi",
+    q: "Which one of the regions is a valid one using a Cortex-M0+? (set B)",
+    options: ["base_address: 4096, length: 128 B", "base_address: 8192, length: 256 B", "base_address: 8192, length: 3 KB", "base_address: 2048, length: 512 B", "base_address: 1024, length: 96 B"],
+    correct: [1, 3]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "multi",
+    q: "Which one of the regions is a valid one using a Cortex-M0+? (set C)",
+    options: ["base_address: 512, length: 5 KB", "base_address: 4096, length: 8 KB", "base_address: 8192, length: 1024 B", "base_address: 1024, length: 196 B", "base_address: 1024, length: 512 B"],
+    correct: [2, 4]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "multi",
+    q: "Which one of the regions is a valid one using a Cortex-M33? (set A)",
+    options: ["base_address: 8192, length: 64 B", "base_address: 4096, length: 4 B", "base_address: 4096, length: 16 B", "base_address: 4096, length: 1 B", "base_address: 1024, length: 8 B", "base_address: 2048, length: 32 B"],
+    correct: [0, 5]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "multi",
+    q: "Which one of the regions is a valid one using a Cortex-M33? (set B)",
+    options: ["base_address: 4096, length: 16 B", "base_address: 1024, length: 8 B", "base_address: 2048, length: 32 B", "base_address: 4096, length: 4 B", "base_address: 4096, length: 1 B", "base_address: 8192, length: 64 B"],
+    correct: [2, 5]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "multi",
+    q: "Which one of the regions is a valid one using a Cortex-M33? (set C)",
+    options: ["base_address: 8, length: 32 B", "base_address: 96, length: 32 B", "base_address: 4, length: 32 B", "base_address: 2048, length: 32 B", "base_address: 8192, length: 64 B"],
+    correct: [1, 3, 4]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "multi",
+    q: "Which one of the regions is a valid one using a Cortex-M33? (set D)",
+    options: ["base_address: 4096, length: 16 B", "base_address: 2048, length: 32 B", "base_address: 1024, length: 8 B", "base_address: 8, length: 4 B", "base_address: 8192, length: 64 B", "base_address: 96, length: 32 B"],
+    correct: [1, 4, 5]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "single",
+    q: "What is the maximum number of regions that the Cortex-M0+ MPU provides?",
+    options: ["16", "128", "64", "32", "8"],
+    correct: [4]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "single",
+    q: "What is the maximum number of regions that the Cortex-M33 MPU provides?",
+    options: ["16", "32", "8", "128", "64"],
+    correct: [2]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "single",
+    q: "What is the minimum size of a region that the Cortex-M0+ MPU provides?",
+    options: ["256 KB", "4 KB", "512 B", "256 B", "8 B"],
+    correct: [3]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "single",
+    q: "What is the minimum size of a subregion that the Cortex-M0+ MPU provides?",
+    options: ["4 B", "4 KB", "32 B", "256 B", "1 B", "32 KB"],
+    correct: [2]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "single",
+    q: "What is the minimum size of a region that the Cortex-M33 MPU provides?",
+    options: ["4 KB", "64 B", "128 B", "32 B", "256 B", "512 B", "256 KB", "8 B"],
+    correct: [3]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "single",
+    q: "What is the number of subregions that the Cortex-M0+ MPU provides?",
+    options: ["16", "8", "32", "64", "No limit"],
+    correct: [1]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "single",
+    q: "What is the number of subregions that the Cortex-M33 MPU provides?",
+    options: ["4", "0", "64", "2", "8", "No limit", "16", "32"],
+    correct: [1]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "single",
+    q: "What is the maximum number of subregions for the Cortex-M0+ MPU that can be enabled at the same time for a region?",
+    options: ["16", "8", "2", "1", "No limit"],
+    correct: [1]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "multi",
+    q: "What are the functioning modes for the Cortex-M0+?",
+    options: ["User", "Unprivileged Thread", "Machine", "Handler", "Privileged Thread", "Supervisor"],
+    correct: [1, 3, 4]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "single",
+    q: "Which Cortex-M0+ functioning mode is used for running operating systems?",
+    options: ["User", "Unprivileged", "Handler", "Supervisor", "Machine", "Privileged"],
+    correct: [5]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "single",
+    q: "Which Cortex-M0+ functioning mode is used for running exceptions and interrupts?",
+    options: ["Supervisor", "Unprivileged", "Machine", "Handler", "Privileged", "User"],
+    correct: [3]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "single",
+    q: "What is the connection between pages and frames?",
+    options: ["A page contains several frames", "A frame has the same size as a page", "A frame contains several pages"],
+    correct: [1]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "single",
+    q: "What is the size of the flat page table on a 32-bit system?",
+    options: ["Depends on the number of defined pages", "1024 B", "4096 B", "1 MB", "4 MB"],
+    correct: [4]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "single",
+    q: "What is the usual frame/page size of an Intel 32-bit processor?",
+    options: ["1024 B", "4096 B", "4 MB", "1 MB", "It depends on the operating system"],
+    correct: [1]
+  },
+  {
+    topic: "Lecture 7/8 — MPU & Memory",
+    type: "single",
+    q: "What is the number of pages that can be used on a 32-bit system?",
+    options: ["32", "No limit", "Around 1 million", "4096", "Around 1 billion"],
+    correct: [2]
+  },
+  {
+    topic: "Lecture 8 — Boot & Exceptions",
+    type: "single",
+    q: "Which exception is triggered when the MCU starts?",
+    options: ["MemoryFault", "HardFault", "Reset", "NMI", "Div0", "SVC"],
+    correct: [2]
+  },
+  {
+    topic: "Lecture 8 — Boot & Exceptions",
+    type: "single",
+    q: "Which exception is triggered usually by an external device?",
+    options: ["HardFault", "MemoryFault", "Div0", "External", "DivisionFault", "SVC", "NMI"],
+    correct: [6]
+  },
+  {
+    topic: "Lecture 8 — Boot & Exceptions",
+    type: "single",
+    q: "Which exception is triggered by an invalid memory access?",
+    options: ["Div0", "HardFault", "NMI", "DivisionFault", "MemoryFault", "SVC"],
+    correct: [1]
+  },
+  {
+    topic: "Lecture 8 — Boot & Exceptions",
+    type: "multi",
+    q: "What are the actions that the Cortex-M0 processor can do upon finishing an interrupt handler?",
+    options: ["Executes an end-of-interrupt routine", "Executes another interrupt handler", "Verifies if there is a HardFault exception pending", "Verifies if there is a NMI exception pending", "Restores the previous state of the processor", "Checks if another interrupt is pending"],
+    correct: [1, 4, 5]
+  },
+  {
+    topic: "Lecture 8 — Boot & Exceptions",
+    type: "multi",
+    q: "How can an ISR be interrupted?",
+    options: ["By an interrupt with a higher priority than the current one", "By the HardFault handler", "By an interrupt with a lower priority than the current one", "By an interrupt with an equal priority with the current one"],
+    correct: [0, 1]
+  },
+  {
+    topic: "Lecture 8 — Boot & Exceptions",
+    type: "single",
+    q: "What happens within the Cortex-M0 processor if the boot information has errors?",
+    options: ["Triggers HardFault", "Mounts a USB drive used for writing software to it", "It sends out a panic blink signal for an LED", "Goes into Lockup", "Resets", "Starts a default firmware", "It panics"],
+    correct: [3]
+  },
+  {
+    topic: "Lecture 8 — Boot & Exceptions",
+    type: "single",
+    q: "What happens within the RP2040 if the boot information has errors?",
+    options: ["It sends out a panic blink signal for an LED", "Starts a default firmware", "Mounts a USB drive used for writing software to it", "It panics", "Triggers HardFault", "Resets", "Goes into Lockup"],
+    correct: [2]
+  },
+  {
+    topic: "Lecture 8 — Boot & Exceptions",
+    type: "single",
+    q: "What happens if the processor encounters an error within the HardFault handler?",
+    options: ["Goes into lockup", "First executes recursively the HardFault handler, if another error is encountered, goes to lockup", "Recursively executes the HardFault handler", "Panics and starts blinking an LED (pin)", "First executes recursively the HardFault handler, if another error is encountered, resets"],
+    correct: [0]
+  },
+  {
+    topic: "Lecture 8 — Boot & Exceptions",
+    type: "multi",
+    q: "What information does the RP2040 processor need from the developer in order to start the software?",
+    options: ["Bootloader", "Executable code", "A valid firmware written to the Flash", "The main function", "Interrupt Vector"],
+    correct: [0, 4]
+  },
+  {
+    topic: "Lecture 8 — Boot & Exceptions",
+    type: "multi",
+    q: "Which of the following statements about RP2040 boot are true?",
+    options: ["The interrupt vector is located before the code and after the bootloader", "The RP2040 internal bootloader can be replaced", "The bootloader is located before the interrupt vector and after the code", "The interrupt vector is located after the code and after the bootloader", "The interrupt vector is located before the code and before the bootloader", "The bootloader is located before the interrupt vector and before the code"],
+    correct: [0, 5]
+  }
+];
+
+let questions = [...ALL_QUESTIONS];
+let state = {};
+let currentTopic = "All";
+let mode = "quiz";
+let fcIndex = 0;
+let fcRevealed = false;
+let stepIndex = 0;
+let stepSelected = [];
+
+const topics = ["All", ...new Set(ALL_QUESTIONS.map(q => q.topic))];
+
+function init() {
+  renderTopicFilter();
+  resetAll();
+}
+
+function renderTopicFilter() {
+  const wrap = document.getElementById("topic-filter");
+  wrap.innerHTML = topics.map(t =>
+    `<button class="topic-btn${t === currentTopic ? " active" : ""}" onclick="setTopic('${t.replace(/'/g,"\\'")}')">
+      ${t === "All" ? "All topics" : t.replace(/Lecture \d+\/?[\d]* — /, "")}
+    </button>`
+  ).join("");
+}
+
+function setTopic(t) {
+  currentTopic = t;
+  renderTopicFilter();
+  filterAndRender();
+}
+
+function filterAndRender() {
+  questions = currentTopic === "All"
+    ? [...ALL_QUESTIONS]
+    : ALL_QUESTIONS.filter(q => q.topic === currentTopic);
+  Object.keys(state).forEach(k => { if (!questions.find((q, i) => i === parseInt(k.split("_")[1]))) {} });
+  state = {};
+  stepIndex = 0;
+  stepSelected = [];
+  updateStats();
+  if (mode === "quiz") renderQuiz();
+  else if (mode === "step") renderStep();
+  else { fcIndex = 0; renderFlashcard(); }
+}
+
+function shuffleQuestions() {
+  questions = [...questions].sort(() => Math.random() - 0.5);
+  state = {};
+  stepIndex = 0;
+  stepSelected = [];
+  updateStats();
+  if (mode === "quiz") renderQuiz();
+  else if (mode === "step") renderStep();
+  else { fcIndex = 0; renderFlashcard(); }
+}
+
+function resetAll() {
+  questions = currentTopic === "All"
+    ? [...ALL_QUESTIONS]
+    : ALL_QUESTIONS.filter(q => q.topic === currentTopic);
+  state = {};
+  stepIndex = 0;
+  stepSelected = [];
+  updateStats();
+  document.getElementById("results-screen").classList.remove("show");
+  if (mode === "quiz") renderQuiz();
+  else if (mode === "step") renderStep();
+  else { fcIndex = 0; fcRevealed = false; renderFlashcard(); }
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById("mode-quiz").classList.toggle("active", m === "quiz");
+  document.getElementById("mode-step").classList.toggle("active", m === "step");
+  document.getElementById("mode-flashcard").classList.toggle("active", m === "flashcard");
+  document.getElementById("quiz-view").style.display = m === "quiz" ? "block" : "none";
+  document.getElementById("step-view").style.display = m === "step" ? "block" : "none";
+  document.getElementById("flashcard-view").style.display = m === "flashcard" ? "block" : "none";
+  document.getElementById("results-screen").classList.remove("show");
+  if (m === "flashcard") { fcIndex = 0; fcRevealed = false; renderFlashcard(); }
+  else if (m === "step") { stepIndex = 0; stepSelected = []; renderStep(); }
+  else renderQuiz();
+}
+
+function renderQuiz() {
+  const view = document.getElementById("quiz-view");
+  if (questions.length === 0) {
+    view.innerHTML = '<div class="empty-state">No questions match this filter.</div>';
+    return;
+  }
+  view.innerHTML = questions.map((q, i) => renderQuestion(q, i)).join("");
+}
+
+function renderQuestion(q, i) {
+  const s = state[i];
+  let cardClass = "question-card";
+  if (s) {
+    cardClass += s.correct ? " answered-correct" : " answered-wrong";
+  }
+
+  const optionsHtml = q.options.map((opt, j) => {
+    let cls = "option";
+    let markerContent = "";
+    const isMulti = q.type === "multi";
+
+    if (s) {
+      const isCorrect = q.correct.includes(j);
+      const wasSelected = s.selected.includes(j);
+      if (isCorrect) cls += " revealed-correct";
+      if (wasSelected && !isCorrect) cls += " wrong";
+      if (wasSelected && isCorrect) cls += " correct";
+    } else if (s === undefined) {
+    }
+
+    const markerCls = "option-marker" + (isMulti ? " multi-marker" : "");
+    if (s) {
+      const isCorrect = q.correct.includes(j);
+      const wasSelected = s.selected.includes(j);
+      if (isCorrect) markerContent = "✓";
+      if (wasSelected && !isCorrect) markerContent = "✗";
+    }
+
+    return `<div class="${cls}" onclick="selectOption(${i}, ${j})" data-q="${i}" data-o="${j}">
+      <span class="${markerCls}">${markerContent}</span>
+      <span class="option-text">${opt}</span>
+    </div>`;
+  }).join("");
+
+  const typeLabel = q.type === "multi" ? "Select all that apply" : "Select one";
+  const topicShort = q.topic.replace(/Lecture \d+\/?[\d]* — /, "");
+
+  let feedback = "";
+  if (s) {
+    feedback = `<div class="feedback-msg ${s.correct ? "correct" : "wrong"} show">
+      ${s.correct
+        ? "✓ Correct!"
+        : `✗ Incorrect. Correct answer${q.correct.length > 1 ? "s" : ""}: <strong>${q.correct.map(c => q.options[c]).join(", ")}</strong>`
+      }
+    </div>`;
+  }
+
+  let actionBtn = "";
+  if (!s && q.type === "multi") {
+    actionBtn = `<button class="btn btn-accent" onclick="submitMulti(${i})" id="submit-${i}">Check answer</button>`;
+  }
+
+  return `<div class="${cardClass}" id="q-card-${i}">
+    <div class="q-meta">
+      <span class="q-topic-tag">${topicShort}</span>
+      <span class="q-type-tag">${typeLabel}</span>
+    </div>
+    <div class="q-text">${i + 1}. ${q.q}</div>
+    <div class="options" id="opts-${i}">${optionsHtml}</div>
+    <div class="q-actions">${actionBtn}</div>
+    ${feedback}
+  </div>`;
+}
+
+function selectOption(qi, oi) {
+  if (state[qi]) return;
+  const q = questions[qi];
+  if (q.type === "single") {
+    const selected = [oi];
+    const correct = arraysMatch(selected, q.correct);
+    state[qi] = { selected, correct };
+    updateCard(qi);
+    updateStats();
+  } else {
+    const card = document.getElementById(`q-card-${qi}`);
+    const opt = card.querySelectorAll(".option")[oi];
+    opt.classList.toggle("selected");
+    const marker = opt.querySelector(".option-marker");
+    if (opt.classList.contains("selected")) {
+      marker.textContent = "✓";
+    } else {
+      marker.textContent = "";
+    }
+  }
+}
+
+function submitMulti(qi) {
+  if (state[qi]) return;
+  const q = questions[qi];
+  const card = document.getElementById(`q-card-${qi}`);
+  const selected = [];
+  card.querySelectorAll(".option").forEach((el, j) => {
+    if (el.classList.contains("selected")) selected.push(j);
+  });
+  if (selected.length === 0) return;
+  const correct = arraysMatch(selected, q.correct);
+  state[qi] = { selected, correct };
+  updateCard(qi);
+  updateStats();
+}
+
+function arraysMatch(a, b) {
+  const sa = [...a].sort();
+  const sb = [...b].sort();
+  return sa.length === sb.length && sa.every((v, i) => v === sb[i]);
+}
+
+function updateCard(qi) {
+  const card = document.getElementById(`q-card-${qi}`);
+  if (!card) return;
+  card.outerHTML = renderQuestion(questions[qi], qi);
+}
+
+function updateStats() {
+  const answered = Object.values(state);
+  const correct = answered.filter(s => s.correct).length;
+  const wrong = answered.filter(s => !s.correct).length;
+  const remaining = questions.length - answered.length;
+  const total = questions.length;
+  const pct = answered.length > 0 ? Math.round((correct / answered.length) * 100) : 0;
+
+  document.getElementById("stat-correct").textContent = correct;
+  document.getElementById("stat-wrong").textContent = wrong;
+  document.getElementById("stat-remaining").textContent = remaining;
+  document.getElementById("stat-total").textContent = total;
+
+  const progress = total > 0 ? ((answered.length / total) * 100) : 0;
+  document.getElementById("progress-bar").style.width = progress + "%";
+  document.getElementById("progress-text").textContent = `${answered.length} / ${total}`;
+  document.getElementById("score-badge").textContent = `Score: ${pct}%`;
+}
+
+function showResults() {
+  const answered = Object.values(state);
+  const correct = answered.filter(s => s.correct).length;
+  const wrong = answered.filter(s => !s.correct).length;
+  const skip = questions.length - answered.length;
+  const pct = answered.length > 0 ? Math.round((correct / answered.length) * 100) : 0;
+
+  document.getElementById("res-pct").textContent = pct + "%";
+  document.getElementById("res-correct").textContent = correct;
+  document.getElementById("res-wrong").textContent = wrong;
+  document.getElementById("res-skip").textContent = skip;
+
+  let label = "Keep going!";
+  if (pct >= 90) label = "Excellent work!";
+  else if (pct >= 75) label = "Good job!";
+  else if (pct >= 60) label = "Getting there!";
+  else if (answered.length === 0) label = "No answers yet";
+
+  document.getElementById("res-label").textContent = label;
+  document.getElementById("res-sub").textContent =
+    `${correct} correct out of ${answered.length} answered (${skip} skipped)`;
+
+  document.getElementById("quiz-view").style.display = "none";
+  document.getElementById("flashcard-view").style.display = "none";
+  document.getElementById("results-screen").classList.add("show");
+}
+
+function renderFlashcard() {
+  const q = questions[fcIndex];
+  if (!q) return;
+  document.getElementById("fc-question").textContent = q.q;
+  document.getElementById("fc-counter").textContent = `${fcIndex + 1} / ${questions.length}`;
+  document.getElementById("fc-hint").style.display = "block";
+  const ans = document.getElementById("fc-answer");
+  const ansText = document.getElementById("fc-answer-text");
+  ans.classList.remove("visible");
+  ansText.textContent = q.correct.map(c => q.options[c]).join(" | ");
+  document.getElementById("fc-side-label").textContent = "Question";
+  fcRevealed = false;
+}
+
+function toggleFlashcard() {
+  fcRevealed = !fcRevealed;
+  const ans = document.getElementById("fc-answer");
+  const hint = document.getElementById("fc-hint");
+  const label = document.getElementById("fc-side-label");
+  if (fcRevealed) {
+    ans.classList.add("visible");
+    hint.style.display = "none";
+    label.textContent = "Answer";
+  } else {
+    ans.classList.remove("visible");
+    hint.style.display = "block";
+    label.textContent = "Question";
+  }
+}
+
+function fcNav(dir) {
+  fcIndex = (fcIndex + dir + questions.length) % questions.length;
+  renderFlashcard();
+}
+
+function renderStep() {
+  if (questions.length === 0) {
+    document.getElementById("step-card-wrap").innerHTML = '<div class="empty-state">No questions match this filter.</div>';
+    return;
+  }
+  renderStepDots();
+  renderStepCard();
+}
+
+function renderStepDots() {
+  const row = document.getElementById("step-dot-row");
+  row.innerHTML = questions.map((q, i) => {
+    const s = state[i];
+    let cls = "step-dot";
+    if (i === stepIndex) cls += " current";
+    else if (s && s.correct) cls += " dot-correct";
+    else if (s && !s.correct) cls += " dot-wrong";
+    return `<div class="${cls}" onclick="jumpStep(${i})" title="Question ${i+1}"></div>`;
+  }).join("");
+}
+
+function jumpStep(i) {
+  stepIndex = i;
+  stepSelected = [];
+  const s = state[i];
+  if (s) stepSelected = [...s.selected];
+  renderStepDots();
+  renderStepCard();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function renderStepCard() {
+  const wrap = document.getElementById("step-card-wrap");
+  const q = questions[stepIndex];
+  const s = state[stepIndex];
+  const isAnswered = !!s;
+  const isMulti = q.type === "multi";
+  const topicShort = q.topic.replace(/Lecture \d+\/?[\d]* — /, "");
+
+  let cardClass = "step-card";
+  if (isAnswered) cardClass += s.correct ? " answered-correct" : " answered-wrong";
+
+  const optionsHtml = q.options.map((opt, j) => {
+    let cls = "step-option";
+    let markerContent = "";
+    const markerCls = "step-option-marker" + (isMulti ? " sq" : "");
+
+    if (isAnswered) {
+      const isCorrect = q.correct.includes(j);
+      const wasSelected = s.selected.includes(j);
+      if (isCorrect) cls += " revealed-correct locked";
+      if (wasSelected && !isCorrect) cls += " wrong locked";
+      if (wasSelected && isCorrect) cls += " correct locked";
+      if (!wasSelected && !isCorrect) cls += " locked";
+      if (isCorrect) markerContent = "✓";
+      if (wasSelected && !isCorrect) markerContent = "✗";
+    } else {
+      if (stepSelected.includes(j)) cls += " selected";
+      if (stepSelected.includes(j)) markerContent = isMulti ? "✓" : "";
+    }
+
+    const onclick = isAnswered ? "" : `onclick="stepSelectOption(${j})"`;
+    return `<div class="${cls}" ${onclick}>
+      <span class="${markerCls}">${markerContent}</span>
+      <span class="step-option-text">${opt}</span>
+    </div>`;
+  }).join("");
+
+  let feedbackHtml = "";
+  if (isAnswered) {
+    feedbackHtml = `<div class="step-feedback ${s.correct ? "correct" : "wrong"} show">
+      ${s.correct
+        ? "✓ Correct!"
+        : `✗ Incorrect. Correct answer${q.correct.length > 1 ? "s" : ""}: <strong>${q.correct.map(c => q.options[c]).join(", ")}</strong>`
+      }
+    </div>`;
+  }
+
+  let submitBtn = "";
+  if (!isAnswered && isMulti) {
+    submitBtn = `<button class="btn btn-accent" onclick="stepSubmitMulti()">Check answer</button>`;
+  }
+
+  let nextBtn = "";
+  if (isAnswered) {
+    if (stepIndex < questions.length - 1) {
+      nextBtn = `<button class="btn btn-accent" onclick="stepNext()">Next question →</button>`;
+    } else {
+      nextBtn = `<button class="btn btn-accent" onclick="showResults()">See results →</button>`;
+    }
+  }
+
+  let prevBtn = stepIndex > 0
+    ? `<button class="btn" onclick="stepPrev()">← Prev</button>`
+    : `<button class="btn" disabled style="opacity:0.4;cursor:default">← Prev</button>`;
+
+  const counter = `<span style="font-size:13px;color:var(--text-muted)">${stepIndex + 1} / ${questions.length}</span>`;
+  const topicTag = `<span class="q-topic-tag" style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);background:var(--accent-light);border:0.5px solid var(--accent-border);border-radius:12px;padding:2px 10px;">${topicShort}</span>`;
+
+  wrap.innerHTML = `<div class="${cardClass}">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+      ${topicTag}
+      <span style="font-size:12px;color:var(--text-muted)">${isMulti ? "Select all that apply" : "Select one"}</span>
+    </div>
+    <div class="step-q-num">Question ${stepIndex + 1} of ${questions.length}</div>
+    <div class="step-q-text">${q.q}</div>
+    <div class="step-options">${optionsHtml}</div>
+    ${submitBtn ? `<div style="margin-bottom:1rem">${submitBtn}</div>` : ""}
+    ${feedbackHtml}
+    <div class="step-nav">
+      <div class="step-nav-left">
+        ${prevBtn}
+        ${nextBtn}
+      </div>
+      ${counter}
+    </div>
+  </div>`;
+}
+
+function stepSelectOption(oi) {
+  const q = questions[stepIndex];
+  if (q.type === "single") {
+    stepSelected = [oi];
+    const correct = arraysMatch(stepSelected, q.correct);
+    state[stepIndex] = { selected: stepSelected, correct };
+    updateStats();
+    renderStepDots();
+    renderStepCard();
+  } else {
+    if (stepSelected.includes(oi)) {
+      stepSelected = stepSelected.filter(x => x !== oi);
+    } else {
+      stepSelected = [...stepSelected, oi];
+    }
+    renderStepCard();
+  }
+}
+
+function stepSubmitMulti() {
+  if (stepSelected.length === 0) return;
+  const q = questions[stepIndex];
+  const correct = arraysMatch(stepSelected, q.correct);
+  state[stepIndex] = { selected: [...stepSelected], correct };
+  updateStats();
+  renderStepDots();
+  renderStepCard();
+}
+
+function stepNext() {
+  if (stepIndex < questions.length - 1) {
+    stepIndex++;
+    stepSelected = state[stepIndex] ? [...state[stepIndex].selected] : [];
+    renderStepDots();
+    renderStepCard();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}
+
+function stepPrev() {
+  if (stepIndex > 0) {
+    stepIndex--;
+    stepSelected = state[stepIndex] ? [...state[stepIndex].selected] : [];
+    renderStepDots();
+    renderStepCard();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}
+
+init();
+</script>
+</body>
+</html>
