@@ -1790,6 +1790,9 @@ function resetAll() {
   clearSession();
   saveSession();
   document.getElementById("results-screen").classList.remove("show");
+  document.getElementById("quiz-view").style.display = mode === "quiz" ? "block" : "none";
+  document.getElementById("step-view").style.display = mode === "step" ? "block" : "none";
+  document.getElementById("flashcard-view").style.display = mode === "flashcard" ? "block" : "none";
   if (mode === "quiz") renderQuiz();
   else if (mode === "step") renderStep();
   else { fcIndex = 0; fcRevealed = false; renderFlashcard(); }
@@ -1977,6 +1980,7 @@ function showResults() {
     `${correct} correct out of ${answered.length} answered (${skip} skipped)`;
 
   document.getElementById("quiz-view").style.display = "none";
+  document.getElementById("step-view").style.display = "none";
   document.getElementById("flashcard-view").style.display = "none";
   document.getElementById("results-screen").classList.add("show");
 }
