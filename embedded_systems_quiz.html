@@ -1675,10 +1675,68 @@ let stepIndex = 0;
 let stepSelected = [];
 
 const topics = ["All", ...new Set(ALL_QUESTIONS.map(q => q.topic))];
+const SAVE_KEY = "esQuizSession_v1";
+
+function saveSession() {
+  try {
+    const questionKeys = questions.map(q => q.q);
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      currentTopic, mode, stepIndex, fcIndex,
+      questionKeys,
+      state
+    }));
+  } catch(e) {}
+}
+
+function loadSession() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    const saved = JSON.parse(raw);
+    currentTopic = saved.currentTopic || "All";
+    mode = saved.mode || "quiz";
+    stepIndex = saved.stepIndex || 0;
+    fcIndex = saved.fcIndex || 0;
+    const savedKeys = saved.questionKeys || [];
+    if (savedKeys.length > 0) {
+      const base = currentTopic === "All"
+        ? ALL_QUESTIONS
+        : ALL_QUESTIONS.filter(q => q.topic === currentTopic);
+      const reordered = [];
+      savedKeys.forEach(k => {
+        const found = base.find(q => q.q === k);
+        if (found) reordered.push(found);
+      });
+      base.forEach(q => { if (!reordered.includes(q)) reordered.push(q); });
+      questions = reordered;
+    }
+    state = saved.state || {};
+    return true;
+  } catch(e) { return false; }
+}
+
+function clearSession() {
+  try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
+}
 
 function init() {
+  const restored = loadSession();
   renderTopicFilter();
-  resetAll();
+  if (restored) {
+    updateStats();
+    document.getElementById("mode-quiz").classList.toggle("active", mode === "quiz");
+    document.getElementById("mode-step").classList.toggle("active", mode === "step");
+    document.getElementById("mode-flashcard").classList.toggle("active", mode === "flashcard");
+    document.getElementById("quiz-view").style.display = mode === "quiz" ? "block" : "none";
+    document.getElementById("step-view").style.display = mode === "step" ? "block" : "none";
+    document.getElementById("flashcard-view").style.display = mode === "flashcard" ? "block" : "none";
+    if (mode === "quiz") renderQuiz();
+    else if (mode === "step") { stepSelected = []; renderStep(); }
+    else renderFlashcard();
+    showToast("Progress restored ✓");
+  } else {
+    resetAll();
+  }
 }
 
 function renderTopicFilter() {
@@ -1700,11 +1758,11 @@ function filterAndRender() {
   questions = currentTopic === "All"
     ? [...ALL_QUESTIONS]
     : ALL_QUESTIONS.filter(q => q.topic === currentTopic);
-  Object.keys(state).forEach(k => { if (!questions.find((q, i) => i === parseInt(k.split("_")[1]))) {} });
   state = {};
   stepIndex = 0;
   stepSelected = [];
   updateStats();
+  saveSession();
   if (mode === "quiz") renderQuiz();
   else if (mode === "step") renderStep();
   else { fcIndex = 0; renderFlashcard(); }
@@ -1716,6 +1774,7 @@ function shuffleQuestions() {
   stepIndex = 0;
   stepSelected = [];
   updateStats();
+  saveSession();
   if (mode === "quiz") renderQuiz();
   else if (mode === "step") renderStep();
   else { fcIndex = 0; renderFlashcard(); }
@@ -1729,6 +1788,8 @@ function resetAll() {
   stepIndex = 0;
   stepSelected = [];
   updateStats();
+  clearSession();
+  saveSession();
   document.getElementById("results-screen").classList.remove("show");
   if (mode === "quiz") renderQuiz();
   else if (mode === "step") renderStep();
@@ -1744,6 +1805,7 @@ function setMode(m) {
   document.getElementById("step-view").style.display = m === "step" ? "block" : "none";
   document.getElementById("flashcard-view").style.display = m === "flashcard" ? "block" : "none";
   document.getElementById("results-screen").classList.remove("show");
+  saveSession();
   if (m === "flashcard") { fcIndex = 0; fcRevealed = false; renderFlashcard(); }
   else if (m === "step") { stepIndex = 0; stepSelected = []; renderStep(); }
   else renderQuiz();
@@ -1832,6 +1894,7 @@ function selectOption(qi, oi) {
     state[qi] = { selected, correct };
     updateCard(qi);
     updateStats();
+    saveSession();
   } else {
     const card = document.getElementById(`q-card-${qi}`);
     const opt = card.querySelectorAll(".option")[oi];
@@ -1858,6 +1921,7 @@ function submitMulti(qi) {
   state[qi] = { selected, correct };
   updateCard(qi);
   updateStats();
+  saveSession();
 }
 
 function arraysMatch(a, b) {
@@ -1979,6 +2043,7 @@ function jumpStep(i) {
   stepSelected = [];
   const s = state[i];
   if (s) stepSelected = [...s.selected];
+  saveSession();
   renderStepDots();
   renderStepCard();
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -2079,6 +2144,7 @@ function stepSelectOption(oi) {
     const correct = arraysMatch(stepSelected, q.correct);
     state[stepIndex] = { selected: stepSelected, correct };
     updateStats();
+    saveSession();
     renderStepDots();
     renderStepCard();
   } else {
@@ -2097,6 +2163,7 @@ function stepSubmitMulti() {
   const correct = arraysMatch(stepSelected, q.correct);
   state[stepIndex] = { selected: [...stepSelected], correct };
   updateStats();
+  saveSession();
   renderStepDots();
   renderStepCard();
 }
@@ -2105,6 +2172,7 @@ function stepNext() {
   if (stepIndex < questions.length - 1) {
     stepIndex++;
     stepSelected = state[stepIndex] ? [...state[stepIndex].selected] : [];
+    saveSession();
     renderStepDots();
     renderStepCard();
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -2115,10 +2183,19 @@ function stepPrev() {
   if (stepIndex > 0) {
     stepIndex--;
     stepSelected = state[stepIndex] ? [...state[stepIndex].selected] : [];
+    saveSession();
     renderStepDots();
     renderStepCard();
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
+}
+
+function showToast(msg) {
+  const t = document.createElement("div");
+  t.textContent = msg;
+  t.style.cssText = "position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:8px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:999;opacity:1;transition:opacity 0.4s";
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = "0"; setTimeout(() => t.remove(), 400); }, 2000);
 }
 
 init();
