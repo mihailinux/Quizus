@@ -726,7 +726,7 @@
   <div class="quiz-controls">
     <div class="controls-left">
       <button class="btn btn-accent" onclick="shuffleQuestions()">⟳ Shuffle</button>
-      <button class="btn" onclick="resetAll()">Reset</button>
+      <button class="btn" onclick="resetAll()" id="reset-btn">Reset</button>
       <button class="btn" onclick="showResults()">Results</button>
     </div>
     <div class="mode-toggle">
@@ -1740,6 +1740,12 @@ function init() {
   }
 }
 
+function updateResetBtn() {
+  const btn = document.getElementById("reset-btn");
+  if (!btn) return;
+  btn.textContent = currentTopic === "All" ? "Reset all" : "Reset section";
+}
+
 function renderTopicFilter() {
   const wrap = document.getElementById("topic-filter");
   wrap.innerHTML = topics.map(t =>
@@ -1747,6 +1753,7 @@ function renderTopicFilter() {
       ${t === "All" ? "All topics" : t.replace(/Lecture \d+\/?[\d]* — /, "")}
     </button>`
   ).join("");
+  updateResetBtn();
 }
 
 function setTopic(t) {
@@ -1783,11 +1790,13 @@ function resetAll() {
   questions = currentTopic === "All"
     ? [...ALL_QUESTIONS]
     : ALL_QUESTIONS.filter(q => q.topic === currentTopic);
-  answers = {};
+  // Only delete answers for questions in the current view
+  questions.forEach(q => { delete answers[q.q]; });
+  // If all questions are now unanswered, also clear the full save
+  if (Object.keys(answers).length === 0) clearSession();
   stepIndex = 0;
   stepSelected = [];
   updateStats();
-  clearSession();
   saveSession();
   document.getElementById("results-screen").classList.remove("show");
   document.getElementById("quiz-view").style.display = mode === "quiz" ? "block" : "none";
