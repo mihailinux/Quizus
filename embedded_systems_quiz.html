@@ -553,7 +553,36 @@
     color: var(--text-muted);
   }
 
-  .step-view { display: none; }
+  .source-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.5rem;
+    background: var(--surface2);
+    border-radius: var(--radius);
+    padding: 4px;
+    width: fit-content;
+  }
+
+  .source-tab {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    border-radius: calc(var(--radius) - 2px);
+    padding: 8px 22px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  .source-tab.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 0 0 0.5px var(--border);
+  }
+
+  .source-tab:hover:not(.active) { color: var(--text); }
 
   .step-card {
     background: var(--surface);
@@ -721,6 +750,11 @@
 </header>
 
 <main>
+  <div class="source-tabs">
+    <button class="source-tab active" onclick="setSource('tests')" id="src-tests">📝 Past Tests</button>
+    <button class="source-tab" onclick="setSource('notes')" id="src-notes">📖 Lecture Notes</button>
+  </div>
+
   <div class="topic-filter" id="topic-filter"></div>
 
   <div class="quiz-controls">
@@ -1665,9 +1699,1574 @@ const ALL_QUESTIONS = [
   }
 ];
 
+const NOTES_QUESTIONS = [
+  // ── LECTURE 1 — Introduction ──────────────────────────────────────────
+  {
+    topic: "L1 — Introduction",
+    type: "multi",
+    q: "Which of the following are characteristics of a microcontroller (MCU)?",
+    options: ["Low operating frequency (MHz range)", "High operating frequency (GHz range)", "A lot of I/O ports", "Usually requires an Operating System", "Does not require an Operating System", "Costs $75–$500"],
+    correct: [0, 2, 4]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "multi",
+    q: "Which of the following are characteristics of a microprocessor (CPU)?",
+    options: ["High operating frequency (GHz range)", "A lot of I/O ports", "Limited number of I/O ports", "Usually requires an Operating System", "Costs $0.1–$25", "Annual demand is billions"],
+    correct: [0, 2, 3]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "What is the word size of the RP2040?",
+    options: ["8 bits", "16 bits", "32 bits", "64 bits"],
+    correct: [2]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "Which ARM Cortex-M variants have security extensions (TrustZone)?",
+    options: ["M0 and M0+", "M3 and M4", "M23 and M33", "M7 and M33"],
+    correct: [2]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "Which ARM Cortex-M variant does NOT have hardware division?",
+    options: ["M3", "M4", "M0/M0+", "M33"],
+    correct: [2]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "What operation does `register | (1 << bit)` perform?",
+    options: ["Clears bit at position `bit`", "Flips bit at position `bit`", "Sets bit at position `bit` to 1", "Reads bit at position `bit`"],
+    correct: [2]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "What operation does `register & !(1 << bit)` perform?",
+    options: ["Sets bit at position `bit` to 1", "Clears bit at position `bit` to 0", "Flips bit at position `bit`", "Masks all bits except `bit`"],
+    correct: [1]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "What operation does `register ^ (1 << bit)` perform?",
+    options: ["Sets bit at position `bit` to 1", "Clears bit at position `bit`", "Flips (toggles) bit at position `bit`", "Checks if bit is set"],
+    correct: [2]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "To extract bits [31:20] from a 32-bit value, which operation is correct?",
+    options: ["(value >> 20) & 0xFFF", "(value << 20) & 0xFFF", "(value >> 12) & 0xFFF", "(value & 0xFFF) >> 20"],
+    correct: [0]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "The Raspberry Pi Pico uses which MCU?",
+    options: ["STM32U545RE", "RP2350", "RP2040", "ATMega328P"],
+    correct: [2]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "What is the main reason Rust is preferred over C/C++ for embedded safety-critical systems?",
+    options: ["It compiles faster than C", "It enforces memory safety at compile time with no undefined behavior", "It has a larger standard library", "It supports object-oriented programming"],
+    correct: [1]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "multi",
+    q: "Which of the following are part of the Rust embedded software stack (from bottom to top)?",
+    options: ["Platform Access Crate (PAC)", "HAL Implementation", "Board Support Crate (BSC)", "Linux kernel", "Framework (e.g. embassy-rs)"],
+    correct: [0, 1, 2, 4]
+  },
+
+  // ── LECTURE 2 — MMIO for GPIO ─────────────────────────────────────────
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "In Memory Mapped IO, what does the processor do to communicate with a peripheral?",
+    options: ["Sends special IO instructions", "Reads and writes to specific memory addresses assigned to the peripheral", "Uses a dedicated communication bus separate from the address space", "Polls a status register over SPI"],
+    correct: [1]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "Why must `write_volatile` be used instead of a normal write when accessing MMIO registers?",
+    options: ["It is faster than a normal write", "It prevents the compiler from optimising away or reordering the write", "It flushes the CPU cache automatically", "It is required by the Rust borrow checker"],
+    correct: [1]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "For chips that have a cache, what additional concern applies to MMIO volatile reads?",
+    options: ["Volatile reads are not needed — cache handles it", "The cache must be flushed or the MMIO region must be marked nocache so the read goes to the bus", "The processor automatically bypasses cache for all reads", "You must use DMA instead of volatile reads"],
+    correct: [1]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "On the RP2040, what is the base address of the SIO (Single Cycle I/O) registers?",
+    options: ["0x4000_0000", "0xd000_0000", "0xe000_0000", "0x2000_0000"],
+    correct: [1]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "To set a GPIO pin as OUTPUT on the RP2040 using SIO, which register do you write to?",
+    options: ["GPIO_IN", "GPIO_OE_CLR", "GPIO_OE_SET", "GPIO_OUT"],
+    correct: [2]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "On the RP2040, what value must be written to the GPIOx_CTRL register's FUNCSEL field to use SIO for a pin?",
+    options: ["0", "1", "5", "8"],
+    correct: [2]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "multi",
+    q: "What are the three peripherals that connect RP2040 GPIO pins to the processor?",
+    options: ["SIO", "PAD", "IO Bank (GPIO)", "UART", "ADC"],
+    correct: [0, 1, 2]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "On the STM32U545RE, what must be done BEFORE configuring a GPIO port's pins?",
+    options: ["Write the MODER register first", "Enable the port's clock signal via the RCC_AHB2ENR1 register", "Reset the entire GPIO port", "Configure the alternate function register"],
+    correct: [1]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "On the STM32U545RE, what bit pattern in GPIOx_MODER configures a pin as General Purpose Output?",
+    options: ["0b00", "0b01", "0b10", "0b11"],
+    correct: [1]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "What is an SVD (System View Description) file used for in embedded Rust development?",
+    options: ["Storing firmware images for flashing", "Describing all peripherals, registers and bit fields of an MCU — used to auto-generate PAC crates", "Defining the linker script for memory layout", "Configuring the debugger probe"],
+    correct: [1]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "What does the `tock-registers` crate provide?",
+    options: ["A complete HAL for the RP2040", "Macros to define register bit fields and structs for type-safe register access", "A DMA abstraction layer", "An async executor for embedded systems"],
+    correct: [1]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "multi",
+    q: "In a bare metal Rust application, which of the following are required?",
+    options: ["#![no_std]", "#![no_main]", "A panic handler that never returns", "A standard main() function that returns an integer", "The main/entry function must never return (returns `!`)"],
+    correct: [0, 1, 2, 4]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "What does the `GPIO_OUT_SET` register do on the RP2040 compared to writing directly to `GPIO_OUT`?",
+    options: ["It's identical — both set all output pins at once", "It atomically sets only the specified bits to HIGH without affecting other pins, avoiding a read-modify-write", "It sets pins to LOW instead of HIGH", "It only works when the pin is configured as input"],
+    correct: [1]
+  },
+
+  // ── LECTURE 3 — Timers, PWM, ADC ─────────────────────────────────────
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "What does the SysTick timer do when its current value register (SYST_CVR) reaches 0?",
+    options: ["The processor resets", "It triggers a SysTick exception and reloads from SYST_RVR", "It stops counting until restarted", "It raises a HardFault"],
+    correct: [1]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "How does SysTick count?",
+    options: ["Upwards, incrementing every millisecond", "Downwards, decrementing every microsecond", "Upwards, incrementing every clock cycle", "Downwards, decrementing every clock cycle using a configurable divider"],
+    correct: [3]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "The RP2350 has two hardware timers (TIMER0 and TIMER1). How many bits wide is each timer's counter?",
+    options: ["16 bits", "32 bits", "48 bits", "64 bits"],
+    correct: [3]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "Each RP2350 hardware timer supports how many alarms?",
+    options: ["1", "2", "4", "8"],
+    correct: [2]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "The RP2350 timer alarm registers are only 32 bits wide. What is the maximum alarm interval this allows?",
+    options: ["About 1 second", "About 72 minutes", "About 24 hours", "About 136 years"],
+    correct: [1]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "When reading the RP2350 64-bit timer, why must you read TIMELR (low) BEFORE TIMEHR (high)?",
+    options: ["TIMEHR is read-only and can only be read after TIMELR", "Reading TIMELR latches TIMEHR so both registers represent the same instant", "TIMELR increments faster and must be read first for accuracy", "The bus only supports sequential reads in that order"],
+    correct: [1]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "What does PWM duty cycle represent?",
+    options: ["The frequency of the PWM signal in Hz", "The peak voltage of the output signal", "The percentage of each period during which the signal is HIGH", "The number of pulses per second"],
+    correct: [2]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "In RP2350's PWM, the `top` register controls what?",
+    options: ["The duty cycle of channel A", "The clock divider value", "The counter wrap value, determining the period", "Whether phase-correct mode is enabled"],
+    correct: [2]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "Each RP2350 PWM slice has two channels (A and B). What constraint do they share?",
+    options: ["They must have the same duty cycle", "They share the same period/frequency but can have different duty cycles", "They must be enabled or disabled together", "They share the same GPIO pin"],
+    correct: [1]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "The RP2350 ADC has a resolution of 12 bits. What is the maximum digital output value?",
+    options: ["255", "1023", "4095", "65535"],
+    correct: [2]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "The RP2350 ADC requires a 48 MHz clock. What is its maximum sampling rate?",
+    options: ["100 kHz", "500 kHz", "1 MHz", "2.5 MHz"],
+    correct: [1]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "According to the Nyquist–Shannon theorem, to correctly sample a signal with a maximum frequency of 10 kHz, the ADC sampling rate must be at least:",
+    options: ["5 kHz", "10 kHz", "20 kHz", "40 kHz"],
+    correct: [2]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "What happens when the ADC sampling frequency is lower than twice the signal's maximum frequency?",
+    options: ["The signal is sampled correctly but with lower resolution", "Aliasing occurs — frequency components overlap and the reconstructed signal is distorted", "The ADC returns all zeros", "The ADC peripheral triggers a HardFault"],
+    correct: [1]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "On the RP2350, which ADC channel is connected to the internal temperature sensor?",
+    options: ["Channel 0", "Channel 2", "Channel 4 (or 8 depending on package)", "Channel 1"],
+    correct: [2]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "multi",
+    q: "In Embassy, to use the ADC asynchronously on RP2350, what must you do before creating the Adc instance?",
+    options: ["Bind the ADC_IRQ_FIFO interrupt to an InterruptHandler", "Enable the ADC clock manually", "Initialize the embassy_rp peripherals with embassy_rp::init()", "Configure the ADC pin as an output first"],
+    correct: [0, 2]
+  },
+
+  // ── LECTURE 4 — Async Development ─────────────────────────────────────
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "What is the key difference between preemptive and cooperative concurrency?",
+    options: ["Preemptive requires more RAM; cooperative is RAM-efficient", "Preemptive can suspend tasks at any time; cooperative tasks voluntarily yield via .await", "Cooperative can use multiple cores; preemptive cannot", "Preemptive is only for microprocessors; cooperative is only for MCUs"],
+    correct: [1]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "In Embassy's cooperative executor, what happens when ALL tasks are waiting for an event?",
+    options: ["The executor busy-loops polling all tasks", "The executor panics with a deadlock error", "The MCU goes to sleep (WFI) until an interrupt wakes it", "The executor resets the MCU"],
+    correct: [2]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "What does the Rust compiler do with an `async fn`?",
+    options: ["Converts it to a thread that runs on the OS", "Rewrites it into a struct that implements the Future trait, capturing local variables as fields", "Runs it immediately in a background thread", "Makes it a generator coroutine"],
+    correct: [1]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "What does `Poll::Pending` mean when returned from `Future::poll()`?",
+    options: ["The future has completed successfully", "The future encountered an error", "The future is not ready yet and the executor should sleep until woken", "The future is cancelled"],
+    correct: [2]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "If you call an async function WITHOUT `.await`, what happens?",
+    options: ["The function executes synchronously", "A compile error is produced", "The function returns a Future object but does not execute its body", "The executor automatically runs it in the background"],
+    correct: [2]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "In Embassy, what does `#[embassy_executor::task]` mark?",
+    options: ["A function that runs in a separate OS thread", "An async function that can be spawned as an independent cooperative task", "A synchronous interrupt handler", "A function that initialises peripherals"],
+    correct: [1]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "What is `pool_size` in `#[embassy_executor::task(pool_size = N)]`?",
+    options: ["The size of the stack allocated for this task", "The maximum number of identical instances of this task that can be spawned simultaneously", "The priority level of the task", "The DMA channel count for this task"],
+    correct: [1]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "What happens if a task contains an infinite loop with NO `.await` inside?",
+    options: ["The loop runs for a fixed time then yields", "The embassy executor will detect the block and reschedule other tasks", "The task blocks the entire executor — no other task ever runs", "The MCU resets automatically after a watchdog timeout"],
+    correct: [2]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "In Embassy, what type of Mutex should be used when sharing data between tasks running in multiple executors or ISRs?",
+    options: ["NoopMutex", "ThreadModeMutex", "CriticalSectionMutex", "AsyncMutex"],
+    correct: [2]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "What is the difference between Embassy's `Channel` and `PubSubChannel`?",
+    options: ["Channel is for high-priority tasks only; PubSubChannel is for low-priority", "Channel delivers each message to ONE consumer; PubSubChannel delivers each message to ALL subscribers", "Channel is synchronous; PubSubChannel is asynchronous", "They are identical — just different naming conventions"],
+    correct: [1]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "What does Embassy's `Signal` channel do differently from a regular `Channel`?",
+    options: ["Signal buffers all messages; Channel only keeps the latest", "Signal only keeps the LATEST value; a new value overwrites the previous one", "Signal supports multiple consumers; Channel supports only one", "Signal is synchronous; Channel is asynchronous"],
+    correct: [1]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "Priority executors in Embassy run tasks inside ISRs. What does this imply?",
+    options: ["Priority tasks run slower than normal tasks", "Priority tasks will interrupt any task running in the lower-priority executor", "Priority tasks cannot use .await", "Priority tasks share the same context as the main executor"],
+    correct: [1]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "When can `.await` be used in Rust?",
+    options: ["Anywhere in any function", "Only inside async functions or async blocks", "Only inside the main function", "Only inside interrupt handlers"],
+    correct: [1]
+  },
+
+  // ── LECTURE 5 — UART & SPI ─────────────────────────────────────────────
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "What does DMA (Direct Memory Access) do?",
+    options: ["It gives direct access to CPU registers from peripherals", "It transfers data between memory addresses without needing the CPU, freeing it for other work", "It speeds up cache access for frequently used data", "It maps peripheral registers into RAM"],
+    correct: [1]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "DMA raises an interrupt when a transfer completes. What additional concern exists for chips with CPU cache?",
+    options: ["DMA automatically flushes the cache after each transfer", "The DMA cannot see cache contents — the cache must be flushed or the buffer marked nocache", "DMA bypasses the cache using a separate memory bus", "Cache is disabled automatically during DMA transfers"],
+    correct: [1]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "UART uses two independent wires. How are TX and RX connected between two devices?",
+    options: ["TX connects to TX, RX connects to RX (straight-through)", "TX connects to RX and RX connects to TX (cross-connected)", "Only TX is used; RX is optional", "Both devices share a single bidirectional wire"],
+    correct: [1]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "In a UART frame with format 8N1, what does '8N1' mean?",
+    options: ["8 data bits, No parity, 1 stop bit", "8 baud rate, Normal speed, 1 start bit", "8 MHz clock, No flow control, 1 device", "8 data bits, No start bit, 1 parity bit"],
+    correct: [0]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "UART has no shared clock between devices. How does the receiver know when to sample each bit?",
+    options: ["The transmitter sends a clock pulse before each byte", "The receiver uses a pre-agreed baud rate to synchronise its own clock with the transmitter", "The start bit acts as a clock synchronisation signal for each bit", "The parity bit is used to re-synchronise between bytes"],
+    correct: [1]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "multi",
+    q: "Which of the following are true about UART transmission?",
+    options: ["It is full duplex — both directions can transmit simultaneously", "It is synchronous — a shared clock line is used", "Each frame begins with a start bit", "The maximum number of connected devices is 2", "Baud rate is the number of bits transmitted per second"],
+    correct: [0, 2, 3, 4]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "In SPI, what is the role of the CS (Chip Select) signal?",
+    options: ["It carries the clock signal to sub devices", "It activates one specific sub device at a time — active LOW", "It indicates the direction of data transfer", "It synchronises the MOSI and MISO lines"],
+    correct: [1]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "What do CPOL and CPHA define in SPI?",
+    options: ["The number of data bits per transfer and the parity setting", "The idle level of the clock (CPOL) and which clock edge is used to sample data (CPHA)", "The chip select polarity and the transfer speed", "The MOSI and MISO pin directions"],
+    correct: [1]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "In SPI, MOSI stands for:",
+    options: ["Main Output, Sub Input — carries data from main to sub", "Main Output, Serial Interface — the clock wire", "Memory Output, Serial Input — a DMA channel", "Multi-Output, Single Input — a broadcast line"],
+    correct: [0]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "What is SPI daisy chaining?",
+    options: ["Connecting multiple sub devices to individual CS lines", "Connecting subs in series so MISO of one feeds MOSI of the next — all sharing one CS", "Using a hub device to extend SPI to more devices", "A technique to double SPI speed using two clock lines"],
+    correct: [1]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "To READ a register from a digital sensor over SPI (e.g. BMP280), what must the MSB of the address byte be set to?",
+    options: ["0 (write mode)", "1 (read mode)", "The value doesn't matter — direction is determined by CS only", "It must match the register address upper nibble"],
+    correct: [1]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "A digital sensor like the BMP280 exposes its data through:",
+    options: ["A raw ADC voltage output", "A list of registers accessible over a serial bus (SPI or I2C)", "A PWM signal whose duty cycle encodes the measurement", "Direct memory-mapped registers in the MCU address space"],
+    correct: [1]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "multi",
+    q: "A digital sensor typically contains which components internally?",
+    options: ["A transducer (analog sensor element)", "An ADC", "An internal MCU for signal processing and cleanup", "A bus interface (SPI or I2C)", "A PWM generator"],
+    correct: [0, 1, 2, 3]
+  },
+
+  // ── LECTURE 6 — I2C & USB ─────────────────────────────────────────────
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "In I2C, how are the SDA and SCL lines normally driven?",
+    options: ["Push-pull — actively driven HIGH or LOW by each device", "Always pulled LOW by the controller", "Open-drain with pull-up resistors — devices only pull LOW, HIGH is the idle state", "Differential signaling like USB"],
+    correct: [2]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "What does the R/W bit in the I2C address frame indicate?",
+    options: ["Whether the address is 7-bit or 10-bit", "1 = Read (controller wants to receive data); 0 = Write (controller wants to send data)", "Whether the device supports repeated start", "The speed mode (standard or fast)"],
+    correct: [1]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "After a STOP condition in I2C, what state are SDA and SCL in?",
+    options: ["Both pulled LOW", "SDA is HIGH while CLK is HIGH", "Both remain in their last data state", "CLK continues toggling, SDA goes HIGH"],
+    correct: [1]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "I2C Fast mode plus (Fm+) supports up to:",
+    options: ["100 kbit/s", "400 kbit/s", "1 Mbit/s", "5 Mbit/s"],
+    correct: [2]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "How many I2C devices does the RP2350 have?",
+    options: ["1", "2", "4", "8"],
+    correct: [1]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "multi",
+    q: "Which are true about I2C transmission?",
+    options: ["It is half duplex", "It uses a shared clock (SCL)", "It supports multiple controllers on one bus (multi-master)", "Each target device has a unique address", "Data is transmitted full-duplex like UART"],
+    correct: [0, 1, 3]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "In USB 2.0, what is the maximum number of devices that can be connected to a single host?",
+    options: ["16", "64", "127", "255"],
+    correct: [2]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "In USB, an IN transfer means:",
+    options: ["Data flows from the host to the device", "Data flows from the device to the host", "A configuration request from the host", "An error acknowledgement packet"],
+    correct: [1]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "USB 2.0 High Speed operates at:",
+    options: ["1.5 Mbit/s", "12 Mbit/s", "480 Mbit/s", "5 Gbit/s"],
+    correct: [2]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "What USB transfer mode provides guaranteed bandwidth but allows data loss?",
+    options: ["Control", "Bulk", "Isochronous", "Interrupt"],
+    correct: [2]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "What USB transfer mode provides guaranteed latency for periodic data (e.g. keyboard keypresses)?",
+    options: ["Control", "Bulk", "Isochronous", "Interrupt"],
+    correct: [3]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "In the USB descriptor hierarchy, what is the correct order from outermost to innermost?",
+    options: ["Interface → Configuration → Device → Endpoint", "Device → Configuration → Interface → Endpoint", "Endpoint → Interface → Device → Configuration", "Configuration → Device → Endpoint → Interface"],
+    correct: [1]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "USB uses differential signaling over which two wires?",
+    options: ["TX and RX", "SDA and SCL", "DP (D+) and DM (D−)", "MOSI and MISO"],
+    correct: [2]
+  },
+
+  // ── LECTURE 8 — Memory Protection ─────────────────────────────────────
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "The Cortex-M0+ MPU uses which ARM architecture version?",
+    options: ["PMSAv6", "PMSAv7", "PMSAv8", "PMSAv9"],
+    correct: [1]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "The Cortex-M33 MPU uses which ARM architecture version?",
+    options: ["PMSAv6", "PMSAv7", "PMSAv8", "PMSAv9"],
+    correct: [2]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "In the Cortex-M0+ MPU (PMSAv7), what is the minimum allowed region size?",
+    options: ["32 B", "64 B", "128 B", "256 B"],
+    correct: [3]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "In the Cortex-M0+ MPU, what constraint must the base address satisfy relative to the region size?",
+    options: ["base_address must be zero", "base_address must be a multiple of the region size", "base_address must be a power of 2", "base_address can be any value"],
+    correct: [1]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "In the Cortex-M0+ MPU, each region is divided into how many subregions?",
+    options: ["4", "8", "16", "32"],
+    correct: [1]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "In the Cortex-M33 MPU (PMSAv8), can regions overlap?",
+    options: ["Yes — higher-numbered regions take priority", "No — regions cannot overlap in PMSAv8", "Yes — but only for read-only regions", "Yes — overlapping is required for subregion emulation"],
+    correct: [1]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "What does the XN (eXecute Never) attribute in the MPU do?",
+    options: ["Prevents the region from being read", "Prevents the region from being written", "Triggers a fault if the processor tries to fetch an instruction from that region", "Marks the region as non-cacheable"],
+    correct: [2]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "multi",
+    q: "What are the three operating modes of the Cortex-M0+?",
+    options: ["Privileged Thread mode", "Unprivileged Thread mode", "Handler mode", "User mode", "Supervisor mode"],
+    correct: [0, 1, 2]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "Handler mode on the Cortex-M is used for:",
+    options: ["Running normal application code", "Running ISRs and exception handlers — always privileged", "Running the OS scheduler only", "Running unprivileged user applications"],
+    correct: [1]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "In virtual memory paging, what is a 'frame'?",
+    options: ["A logical division of the program's address space", "A fixed-size block of physical RAM that stores one page", "An entry in the TLB cache", "A section of Flash memory"],
+    correct: [1]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "What is the typical page/frame size on a 32-bit Intel processor?",
+    options: ["1 KB", "4 KB (4096 B)", "4 MB", "64 KB"],
+    correct: [1]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "What is the size of a flat (single-level) page table on a 32-bit system with 4 KB pages and 4-byte entries?",
+    options: ["1 MB", "4 MB", "16 MB", "64 MB"],
+    correct: [1]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "What does the TLB (Translation Lookaside Buffer) do?",
+    options: ["Stores frequently used data from RAM for fast CPU access", "Caches recent page-table lookups to avoid two memory accesses per logical access", "Holds the entire page table in fast SRAM", "Maps physical addresses to logical addresses for DMA"],
+    correct: [1]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "MCUs typically use MPU rather than MMU. Why?",
+    options: ["MPU is more expensive to manufacture", "MCUs don't need memory protection", "MPU provides simpler region-based protection without address translation — sufficient for bare metal; MMU's full virtual memory would be overkill", "MMU is not compatible with ARM Cortex-M"],
+    correct: [2]
+  },
+
+  // ── LECTURE 9 — Exceptions & Interrupts ──────────────────────────────
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "single",
+    q: "What is the first exception triggered when the Cortex-M processor powers up?",
+    options: ["NMI", "SysTick", "Reset", "HardFault"],
+    correct: [2]
+  },
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "single",
+    q: "What happens if the processor encounters an error inside the HardFault handler?",
+    options: ["It recursively calls the HardFault handler again", "It triggers an NMI instead", "It enters Lockup state (or resets)", "It silently ignores the error and continues"],
+    correct: [2]
+  },
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "single",
+    q: "What is the maximum number of IRQs (external interrupts) on the ARM Cortex-M0+?",
+    options: ["16", "32", "64", "480"],
+    correct: [1]
+  },
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "single",
+    q: "What is the maximum number of IRQs on the ARM Cortex-M33?",
+    options: ["32", "64", "128", "480"],
+    correct: [3]
+  },
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "single",
+    q: "On the RP2040, what happens if the boot information (interrupt vector) has errors?",
+    options: ["The processor locks up immediately", "It triggers a HardFault", "It mounts a USB drive for firmware flashing", "It resets and retries 3 times"],
+    correct: [2]
+  },
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "single",
+    q: "On the RP2040, where does the interrupt vector table start in flash?",
+    options: ["0x0000_0000", "0x1000_0000", "0x1000_0100", "0x1000_0040"],
+    correct: [2]
+  },
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "single",
+    q: "On the RP2350, where does the interrupt vector table start?",
+    options: ["0x1000_0000", "0x1000_0040 (after the 15-exception table)", "0x1000_0100", "0x2000_0000"],
+    correct: [1]
+  },
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "multi",
+    q: "After finishing an ISR, what does the Cortex-M processor check?",
+    options: ["If there is a higher-priority interrupt pending", "Restores the saved processor state (pops registers from stack)", "Checks if another interrupt is pending (tail-chaining)", "Resets the NVIC priority register", "Clears the entire interrupt vector table"],
+    correct: [0, 1, 2]
+  },
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "single",
+    q: "What is the purpose of the NVIC (Nested Vectored Interrupt Controller)?",
+    options: ["It executes interrupt handlers directly", "It receives interrupt requests from peripherals, prioritises them, and signals the processor to handle them", "It stores the interrupt vector table in RAM", "It manages DMA transfers for peripheral data"],
+    correct: [1]
+  },
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "single",
+    q: "Can an ISR itself be interrupted?",
+    options: ["No — ISRs always run to completion", "Yes — by a higher-priority interrupt or by a HardFault", "Yes — by any interrupt regardless of priority", "Only by the NMI exception"],
+    correct: [1]
+  },
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "single",
+    q: "The RP2040 internal boot loader is stored at address 0x0000_0000 (ROM). Can it be overwritten?",
+    options: ["Yes — by flashing a new firmware image", "No — it is read-only ROM and cannot be overwritten", "Yes — but only in privileged mode", "No — but only after secure boot is enabled"],
+    correct: [1]
+  },
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "single",
+    q: "Which Cortex-M exception has a negative IRQ number and the highest fixed priority?",
+    options: ["SysTick", "SVCall", "Reset", "HardFault"],
+    correct: [2]
+  },
+
+  // ── LECTURE 10 — Secure Execution ─────────────────────────────────────
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "ARM TrustZone introduces two execution worlds. Which are they?",
+    options: ["Privileged and Unprivileged", "Kernel and User", "Secure and NonSecure", "Root and Guest"],
+    correct: [2]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "What does the IDAU (Implementation Defined Attribution Unit) do?",
+    options: ["It is software-configured by the OS at runtime", "It is hard-wired by the MCU manufacturer and assigns fixed security attributes to address ranges", "It replaces the SAU when TrustZone is disabled", "It manages the TLB for secure memory translations"],
+    correct: [1]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "What does the SAU (Security Attribution Unit) do?",
+    options: ["It is hard-wired like the IDAU — cannot be changed", "It is software-configured — allows up to 8 regions to be marked NonSecure or NonSecure-Callable", "It manages MPU regions for secure code", "It controls which interrupts are visible to NonSecure code"],
+    correct: [1]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "What is a NonSecure-Callable (NSC) memory region?",
+    options: ["A region that NonSecure code can read and write freely", "A region that allows NonSecure code to call into Secure code via a secure gateway entry point", "A region that is inaccessible from both worlds", "A region only used for DMA transfers"],
+    correct: [1]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "Which instruction must be the first instruction at a secure gateway entry point for NonSecure-to-Secure calls?",
+    options: ["BL (Branch and Link)", "SG (Secure Gateway)", "BXNS (Branch and Exchange NonSecure)", "SVC (Supervisor Call)"],
+    correct: [1]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "How does Secure code return to NonSecure code after a call via a secure gateway?",
+    options: ["Using a normal BX LR instruction", "Using BXNS LR — a NonSecure branch instruction", "Using SVC to request a context switch", "Using BLXNS targeting the original call site"],
+    correct: [1]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "OTP (One-Time Programmable) memory has three lock levels. Which is the most restrictive?",
+    options: ["Read/Write", "Read Only", "Inaccessible", "Encrypted"],
+    correct: [2]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "Where does the processor start executing when it powers up on a TrustZone-enabled system?",
+    options: ["In NonSecure mode", "In Privileged mode only", "In Secure mode", "In Handler mode, NonSecure world"],
+    correct: [2]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "multi",
+    q: "What does the RP2350 ROM bootloader provide?",
+    options: ["Secure Boot", "Secure Update", "A/B partition support with rollback", "Trusted Firmware-M full implementation", "Try-before-you-buy firmware loading"],
+    correct: [0, 1, 2, 4]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "What is the purpose of storing the bootloader's public key in OTP?",
+    options: ["To encrypt the firmware during flashing", "So the bootloader can verify the digital signature of new firmware before loading it", "To prevent the debugger from reading flash contents", "To allow firmware updates without a physical connection"],
+    correct: [1]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "In a properly provisioned device, what prevents an attacker from replacing the Secure firmware with unsigned code?",
+    options: ["The MPU blocks writes to flash", "Secure Boot is enabled — the bootloader verifies the digital signature and refuses unsigned firmware", "The OTP lock prevents all flash writes", "The JTAG debug interface is permanently disabled"],
+    correct: [1]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "multi",
+    q: "Which of the following are steps in the secure device provisioning process?",
+    options: ["Generate a unique key pair per device", "Digitally sign the secure firmware with the private key", "Write the public key to OTP", "Enable Secure Boot", "Share the private key with the device owner"],
+    correct: [0, 1, 2, 3]
+  },
+
+  // ── LECTURE 1 EXTRA ────────────────────────────────────────────────
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "In Rust, what is the size of `char`?",
+    options: ["1 byte (same as u8)", "2 bytes (UTF-16)", "4 bytes (UTF-8 scalar)", "8 bytes"],
+    correct: [2]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "In Rust, what does `b's'` represent?",
+    options: ["A char literal", "A u8 ASCII byte value", "A &str slice", "A u32 Unicode scalar"],
+    correct: [1]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "In Rust, `usize` has a size that depends on:",
+    options: ["The operating system", "The compiler version", "The processor word size (e.g. 32 bits on a 32-bit processor)", "Always 64 bits"],
+    correct: [2]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "multi",
+    q: "Which of the following are Rust safety guarantees that C/C++ does NOT provide by default?",
+    options: ["No null references — compiler requires explicit checking", "No implicit casts between integer types", "Safe shared data access verified at compile time", "Automatic garbage collection", "Clearly defined integer overflow behavior"],
+    correct: [0, 1, 2, 4]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "What is the RP2040's RAM size?",
+    options: ["128 KB", "264 KB", "512 KB", "2 MB"],
+    correct: [1]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "What is the STM32U545RE's maximum frequency?",
+    options: ["48 MHz", "133 MHz", "160 MHz", "500 MHz"],
+    correct: [2]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "How many cores does the RP2040 have?",
+    options: ["1", "2", "4", "8"],
+    correct: [1]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "The STM32U545RE uses which ARM Cortex-M variant?",
+    options: ["Cortex-M0+", "Cortex-M4", "Cortex-M33", "Cortex-M7"],
+    correct: [2]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "What result does `0b1000 | 0b0111` produce?",
+    options: ["0b0000", "0b1000", "0b1111", "0b0111"],
+    correct: [2]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "What result does `0b1100 & !(1 << 2)` produce?",
+    options: ["0b1100", "0b1000", "0b0100", "0b0000"],
+    correct: [1]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "What result does `0b1100 ^ (1 << 2)` produce?",
+    options: ["0b1100", "0b1000", "0b0100", "0b1111"],
+    correct: [1]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "Which ARM Cortex-M variants lack floating point hardware?",
+    options: ["M0, M0+, M3", "M4, M7", "M23, M33", "M0, M0+, M23"],
+    correct: [0]
+  },
+  {
+    topic: "L1 — Introduction",
+    type: "single",
+    q: "What is the PAC (Platform Access Crate) in the Rust embedded stack?",
+    options: ["A framework providing drivers and async tasks", "A crate auto-generated from SVD that gives type-safe access to peripheral registers", "A board-specific crate bundling pin assignments", "The async executor library"],
+    correct: [1]
+  },
+
+  // ── LECTURE 2 EXTRA ────────────────────────────────────────────────
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "On the RP2040, where are Flash, RAM and GPIO mapped in the address space?",
+    options: ["Flash at 0x0000_0000, RAM at 0x2000_0000, GPIO at 0x4000_0000", "Flash at 0x2000_0000, RAM at 0x4000_0000, GPIO at 0x0000_0000", "Flash at 0x4000_0000, RAM at 0x0000_0000, GPIO at 0x2000_0000", "All at 0xe000_0000"],
+    correct: [0]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "Where are the ARM Cortex-M system control registers (CPUID, AIRCR, SysTick) located?",
+    options: ["0x2000_0000", "0x4000_0000", "0xd000_0000", "0xe000_0000"],
+    correct: [3]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "What is the offset of the CPUID register from the system control base address 0xe000_0000?",
+    options: ["0xe010", "0xed00", "0xed0c", "0x0000"],
+    correct: [1]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "What is the AIRCR register used for?",
+    options: ["Reading the CPU identifier", "Configuring the SysTick timer interval", "Triggering a system reset via SYSRESETREQ", "Enabling GPIO interrupts"],
+    correct: [2]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "When writing to AIRCR to reset the system, what must VECTKEY be set to?",
+    options: ["0x0000", "0x05FA", "0xFFFF", "0xDEAD"],
+    correct: [1]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "On the RP2040, what is the offset formula for the GPIOx_CTRL register for pin x?",
+    options: ["0x4 + 4*x", "0x4 + 8*x", "0x8 + 4*x", "0x8 + 8*x"],
+    correct: [1]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "When compiler optimization is applied to multiple writes to the same MMIO address, what does the compiler do?",
+    options: ["It generates an error warning the developer", "It issues all writes in the correct order", "It optimizes away all but the last write, treating it like a normal variable", "It adds memory barriers automatically"],
+    correct: [2]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "What are the two cache write policies discussed in the lecture?",
+    options: ["write-once and write-many", "write-through and write-back", "write-volatile and write-normal", "write-fast and write-safe"],
+    correct: [1]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "On the STM32U545RE, what is the base address of GPIO Port A?",
+    options: ["0x4000_0000", "0x4202_0000", "0x4202_0400", "0xe000_0000"],
+    correct: [1]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "On the STM32U545RE, what register controls whether a GPIO pin is input, output, alternate, or analog?",
+    options: ["GPIOx_ODR", "GPIOx_IDR", "GPIOx_MODER", "GPIOx_PUPDR"],
+    correct: [2]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "What does the `#[entry]` attribute from cortex-m-rt do in a bare metal Rust application?",
+    options: ["Marks the panic handler", "Marks the function as the program entry point called by the reset handler", "Enables hardware floating point", "Configures the linker script"],
+    correct: [1]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "In the Rust embedded HAL, what trait must a GPIO output pin implement?",
+    options: ["InputPin", "OutputPin", "StatefulOutputPin", "PinState"],
+    correct: [1]
+  },
+  {
+    topic: "L2 — MMIO & GPIO",
+    type: "single",
+    q: "In embassy-rs, the `#[embassy_executor::main]` attribute on the main function means:",
+    options: ["The main function must never return", "The main function is called by the Embassy framework and CAN exit, unlike bare metal", "The main function runs in privileged mode only", "The main function is the reset exception handler"],
+    correct: [1]
+  },
+
+  // ── LECTURE 3 EXTRA ────────────────────────────────────────────────
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "The RP2350 external crystal (XOSC) oscillates at:",
+    options: ["1 MHz", "8 MHz", "12 MHz", "48 MHz"],
+    correct: [2]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "The STM32U545RE Embassy initialization uses which default clock source?",
+    options: ["HSE external crystal", "HSI high-speed internal", "MSIS Multi-Speed Internal oscillator", "PLL from HSI"],
+    correct: [2]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "What does a frequency divider do to a clock signal fed to a timer?",
+    options: ["Multiplies the frequency", "Divides the frequency, reducing overflow rates and allowing slower timer operation", "Converts analog clock to digital", "Synchronizes two clocks together"],
+    correct: [1]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "multi",
+    q: "What are the standard ARM Cortex-M exceptions (not external interrupts)?",
+    options: ["Reset", "NMI", "HardFault", "SVCall", "SysTick", "PendSV", "IRQ0"],
+    correct: [0, 1, 2, 3, 4, 5]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "What does the SYST_RVR register control in SysTick?",
+    options: ["The current count value", "The reload value — the counter resets to this when it reaches 0", "Whether the SysTick interrupt fires", "The clock source selection"],
+    correct: [1]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "What two bits must be set in SYST_CSR to enable SysTick with interrupt?",
+    options: ["Bit 0 ENABLE and bit 1 TICKINT", "Bit 1 TICKINT and bit 2 CLKSOURCE", "Bit 0 ENABLE and bit 16 COUNTFLAG", "Bit 2 CLKSOURCE and bit 3 IRQ"],
+    correct: [0]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "When setting a RP2350 timer alarm that may overflow 32 bits, what Rust method must be used for the addition?",
+    options: ["Regular + operator", "wrapping_add", "saturating_add", "checked_add"],
+    correct: [1]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "In PWM phase-correct mode, what does the counter do differently from standard mode?",
+    options: ["Counts only downward", "Counts up to TOP then reverses and counts back down to 0", "Resets at half the TOP value", "Pauses at compare match"],
+    correct: [1]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "In the RP2350 ADC, what formula converts a raw 12-bit reading to voltage (Vmax = 3.3 V)?",
+    options: ["voltage = reading / 4095 * 3.3", "voltage = reading * 4095 / 3.3", "voltage = reading / 1024 * 3.3", "voltage = reading / 255 * 3.3"],
+    correct: [0]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "How does the SAR ADC determine the output value bit by bit?",
+    options: ["By counting pulses from a comparator over a fixed time", "Starting with MSB assumed 1, comparing input vs a DAC, refining bit by bit from MSB to LSB", "By measuring RC charging time", "By averaging multiple rapid samples"],
+    correct: [1]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "In bare metal Rust, which attribute marks a SysTick exception handler?",
+    options: ["#[interrupt]", "#[exception]", "#[handler]", "#[isr]"],
+    correct: [1]
+  },
+  {
+    topic: "L3 — Timers, PWM & ADC",
+    type: "single",
+    q: "What does the `bind_interrupts!` macro do in Embassy?",
+    options: ["Enables all peripheral interrupts at once", "Binds named interrupt signals to their Embassy driver interrupt handlers", "Registers a custom HardFault handler", "Sets interrupt priorities in the NVIC"],
+    correct: [1]
+  },
+
+  // ── LECTURE 4 EXTRA ────────────────────────────────────────────────
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "In preemptive concurrency, why is task switching expensive?",
+    options: ["The CPU must flush caches between tasks", "The OS must save all processor registers of the current task and restore those of the next", "The scheduler must re-compile each task", "Tasks must synchronize over a shared bus"],
+    correct: [1]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "Why is cooperative concurrency well-suited to embedded MCUs doing I/O?",
+    options: ["MCUs have hardware support for cooperative scheduling", "I/O takes much longer than task-switch overhead, so cooperative yielding wastes less time than preemptive state saves", "Cooperative tasks run faster because they bypass the NVIC", "Cooperative tasks do not require interrupts"],
+    correct: [1]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "What does `Poll::Ready(value)` mean when returned from `Future::poll()`?",
+    options: ["The future needs to be polled again", "The future is still waiting for hardware", "The future completed and produced `value`", "The executor should stop polling this future permanently"],
+    correct: [2]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "In the simplified executor, what does `cortex_m::asm::wfi()` do?",
+    options: ["Resets the processor", "Waits For Interrupt — puts CPU to sleep until an interrupt fires", "Flushes the instruction cache", "Executes the next task immediately"],
+    correct: [1]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "What is a `Waker` in the context of Rust Futures?",
+    options: ["A hardware timer that wakes the CPU from sleep", "A mechanism tasks use to notify the executor they should be polled again", "A mutex that wakes blocked tasks", "An interrupt handler wrapper"],
+    correct: [1]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "Why is `self` pinned using `Pin<&mut Self>` in the real `Future::poll()` trait?",
+    options: ["To prevent the future being moved in memory after it starts, which would invalidate self-references in the state machine", "To lock the future from being accessed by multiple tasks", "To enable hardware DMA access to future data", "To allow the future to be shared between cores"],
+    correct: [0]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "What is `NoopMutex` in Embassy used for?",
+    options: ["A spinlock for ISR-safe access", "A zero-cost mutex for sharing data between tasks in the SAME single-threaded executor", "A channel for sending data between tasks", "An async mutex that allows .await while held"],
+    correct: [1]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "What is a `PriorityChannel` in Embassy?",
+    options: ["A channel delivering messages to all subscribers simultaneously", "An MPMC channel where higher-priority messages are moved to the front of the queue", "A channel that only accepts messages from high-priority tasks", "A blocking-only channel without async support"],
+    correct: [1]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "On RP2350, which interrupts are used to trigger priority executor tasks?",
+    options: ["TIMER0_IRQ_0 and TIMER0_IRQ_1", "SWI_IRQ_0 and SWI_IRQ_1", "ADC_IRQ_FIFO and DMA_IRQ_0", "UART0_IRQ and UART1_IRQ"],
+    correct: [1]
+  },
+  {
+    topic: "L4 — Async Development",
+    type: "single",
+    q: "What does `Blocking Mutex` in Embassy restrict compared to `Async Mutex`?",
+    options: ["Blocking Mutex cannot be used across tasks", ".await is not allowed while a Blocking Mutex is held", "Blocking Mutex can only be used in ISRs", "Blocking Mutex requires a CriticalSection to create"],
+    correct: [1]
+  },
+
+  // ── LECTURE 5 EXTRA ────────────────────────────────────────────────
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "How many DMA channels does the RP2350 have (vs RP2040)?",
+    options: ["8 (RP2350) vs 4 (RP2040)", "16 (RP2350) vs 12 (RP2040)", "12 (RP2350) vs 8 (RP2040)", "32 (RP2350) vs 16 (RP2040)"],
+    correct: [1]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "What additional DMA transfer type does STM32U545RE support that RP2 does NOT?",
+    options: ["Memory to Peripheral", "Peripheral to Memory", "Memory to Memory", "Peripheral to Peripheral"],
+    correct: [3]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "What is the purpose of the start bit in a UART frame?",
+    options: ["It carries the first data bit", "It signals the beginning of a new frame for receiver synchronisation", "It identifies the baud rate", "It resets the parity counter"],
+    correct: [1]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "What is the most commonly used UART baud rate for debug output?",
+    options: ["9600 baud", "38400 baud", "115200 baud", "1000000 baud"],
+    correct: [2]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "What is the difference between UART TTL and RS232 voltage levels?",
+    options: ["TTL uses 0–3.3V or 0–5V; RS232 uses −12V to +12V", "TTL uses −12V to +12V; RS232 uses 0–5V", "Both use the same voltages but differ in wire count", "TTL is differential; RS232 is single-ended"],
+    correct: [0]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "In SPI, when does the sub device disconnect its MISO output from the shared bus?",
+    options: ["When the CLK signal is HIGH", "When its CS line is inactive (HIGH)", "After each byte is transmitted", "During the parity check phase"],
+    correct: [1]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "In SPI Mode 0 (CPOL=0, CPHA=0), when is data sampled?",
+    options: ["On the falling edge of the clock", "On the rising edge (first edge) of the clock", "On the trailing (second) edge of the clock", "While the clock is HIGH"],
+    correct: [1]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "CPOL=1 means the SPI clock idles at:",
+    options: ["LOW (0)", "HIGH (1)", "Undefined — depends on CPHA", "Half the supply voltage"],
+    correct: [1]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "In Embassy async SPI, what is the difference between `blocking_transfer_in_place` and async `transfer`?",
+    options: ["Blocking uses DMA; async uses CPU", "Blocking uses CPU polling; async uses DMA and yields to other tasks while transferring", "Both use DMA but async has larger buffers", "There is no functional difference"],
+    correct: [1]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "How many SPI devices does the RP2350 have?",
+    options: ["1", "2", "4", "8"],
+    correct: [1]
+  },
+  {
+    topic: "L5 — UART & SPI",
+    type: "single",
+    q: "In the UART receiver, what does the FIFO do?",
+    options: ["It multiplexes multiple UART channels", "It buffers received bytes so the MCU does not need to service every byte immediately", "It stores the baud rate configuration", "It generates the clock signal"],
+    correct: [1]
+  },
+
+  // ── LECTURE 6 EXTRA ────────────────────────────────────────────────
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "In a 10-bit I2C address, what pattern do the first 5 bits of the address frame contain?",
+    options: ["00000", "11111", "11110", "10101"],
+    correct: [2]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "In I2C, when does the controller write a bit onto SDA?",
+    options: ["When SCL is HIGH", "When SCL is LOW", "After the ACK bit", "After the STOP condition"],
+    correct: [1]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "What I2C mode uses Push-Pull driving and is unidirectional?",
+    options: ["Standard mode Sm", "Fast mode Fm", "High-speed mode Hs", "Ultra-fast mode UFm"],
+    correct: [3]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "How many I2C devices does the STM32U545RE have?",
+    options: ["1", "2", "4", "8"],
+    correct: [2]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "In USB, what is endpoint 0 always used for?",
+    options: ["Bulk data transfer", "Isochronous streaming", "Control transfers — device configuration and enumeration", "Interrupt data from HID devices"],
+    correct: [2]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "What is the maximum number of endpoints a USB device can have?",
+    options: ["4", "8", "16", "32"],
+    correct: [2]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "USB 2.0 Low Speed operates at:",
+    options: ["1.5 Mbit/s", "12 Mbit/s", "480 Mbit/s", "5 Gbit/s"],
+    correct: [0]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "What does NACK mean in USB handshaking?",
+    options: ["Data was successfully received", "The device has an error and stalled", "Data was not successfully received or device is busy", "Transmission was aborted"],
+    correct: [2]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "In USB Bulk transfer, what happens if data is received with an error?",
+    options: ["The packet is silently dropped", "The receiver sends NACK and the host retransmits", "The device resets its endpoint", "A HardFault is triggered"],
+    correct: [1]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "What is the USB clock frequency used by the RP2350?",
+    options: ["12 MHz", "24 MHz", "48 MHz", "96 MHz"],
+    correct: [2]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "In the USB device descriptor, what field identifies the device class?",
+    options: ["idVendor", "bDeviceClass", "bNumConfigurations", "bcdUSB"],
+    correct: [1]
+  },
+  {
+    topic: "L6 — I2C & USB",
+    type: "single",
+    q: "What does USB class code 0x03 represent?",
+    options: ["Mass Storage", "Audio", "HID Human Interface Device", "Communications CDC"],
+    correct: [2]
+  },
+
+  // ── LECTURE 8 EXTRA ────────────────────────────────────────────────
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "In the Cortex-M0+ MPU (PMSAv7), when two regions overlap, which takes priority?",
+    options: ["The region with the lower number", "The region with the higher number", "The smaller region always wins", "The last-written region wins"],
+    correct: [1]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "In PMSAv7, what AP value gives Privileged Read/Write and Unprivileged Read-Only access?",
+    options: ["001", "010", "011", "110"],
+    correct: [1]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "What happens when unprivileged code accesses a disabled MPU subregion?",
+    options: ["The access is permitted but slower", "A memory fault is triggered", "The access is silently ignored", "The MPU is temporarily disabled"],
+    correct: [1]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "How would you protect a 5 KB data region using the Cortex-M0+ MPU since 5 KB is not a power of 2?",
+    options: ["Create one 8 KB region and accept the extra coverage", "Use two 4 KB regions back-to-back and disable 6 of the 8 subregions in the second (each subregion = 512 B)", "Use a 4 KB region and a separate 1 KB region", "This is impossible without PMSAv8"],
+    correct: [1]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "multi",
+    q: "What permissions does the .text (code) section typically get in an embedded memory layout?",
+    options: ["Read", "Execute", "Write", "No access"],
+    correct: [0, 1]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "multi",
+    q: "What permissions does the .data/.bss (RAM data) section typically get in an embedded memory layout?",
+    options: ["Read", "Write", "Execute", "No access"],
+    correct: [0, 1]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "What is the `.bss` section?",
+    options: ["Read-only constants in Flash", "Global variables that are zero-initialized or uninitialized, stored in RAM", "Initialized global variables copied from Flash to RAM at startup", "The interrupt vector table"],
+    correct: [1]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "What is the `.rodata` section?",
+    options: ["Global variables initialized at startup", "Read-only constants such as string literals and constant arrays, stored in Flash", "BSS segment for zero-initialized data", "The stack region"],
+    correct: [1]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "In a page table entry, what does the Valid bit indicate?",
+    options: ["The page has been accessed recently", "The page has been written since the OS last checked", "The page frame is currently present in physical RAM", "The page is executable"],
+    correct: [2]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "In x86 32-bit page table entries, what does the XD (eXecute Disable) bit do?",
+    options: ["Prevents the page from being read", "Prevents the page from being written", "Triggers a fault if an instruction fetch is attempted from this page", "Marks the page as shared between processes"],
+    correct: [2]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "Why does a flat single-level page table on a 32-bit system require 4 MB?",
+    options: ["Each process needs its own 4 MB copy", "With 4 KB pages and 4-byte entries: 2^20 page entries × 4 bytes = 4 MB", "The TLB requires 4 MB for its cache", "Each page table entry is 8 bytes"],
+    correct: [1]
+  },
+  {
+    topic: "L8 — Memory Protection",
+    type: "single",
+    q: "What problem does a two-level page directory solve?",
+    options: ["It increases the number of supported pages", "Sparse allocation — only page tables for used memory regions are allocated, saving RAM", "It makes TLB lookups faster", "It enables larger page sizes"],
+    correct: [1]
+  },
+
+  // ── LECTURE 9 EXTRA ────────────────────────────────────────────────
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "single",
+    q: "What does the exception vector table contain at its very start before the handler addresses?",
+    options: ["The first instruction of the program", "The initial stack pointer value, followed by the Reset handler address", "The CPUID register value", "The bootloader checksum"],
+    correct: [1]
+  },
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "single",
+    q: "On the RP2040, what does pressing BOOTSEL at power-up cause the internal bootloader to do?",
+    options: ["Jump immediately to user application", "Mount a USB mass storage device to accept a new firmware image", "Trigger a HardFault to reset all settings", "Disable flash and boot from RAM"],
+    correct: [1]
+  },
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "single",
+    q: "What does the Lockup state mean on a Cortex-M processor?",
+    options: ["The CPU enters deep sleep", "The CPU is stuck in an unrecoverable fault and stops fetching instructions", "The NVIC is disabled", "The MPU blocks all memory accesses"],
+    correct: [1]
+  },
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "single",
+    q: "What is tail-chaining in ARM Cortex-M interrupt handling?",
+    options: ["Multiple ISRs forming a linked list", "When a new interrupt is pending as an ISR finishes, the CPU jumps to the next ISR without popping and pushing state again", "When a low-priority ISR preempts a high-priority one", "A mode where all ISRs share a single stack frame"],
+    correct: [1]
+  },
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "single",
+    q: "When the processor saves state before entering an ISR, what is pushed onto the stack?",
+    options: ["Only the program counter PC", "All 16 general-purpose registers", "r0–r3, r12, LR, PC, xPSR (8 registers)", "Only r0 and LR"],
+    correct: [2]
+  },
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "single",
+    q: "The `ExceptionFrame` struct passed to the HardFault handler contains which registers?",
+    options: ["r0, r1, r2, r3, r12, lr, pc, xpsr", "All 16 ARM registers", "Only pc and lr", "r0, r1, sp, pc"],
+    correct: [0]
+  },
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "single",
+    q: "On RP2350, what is stored at the start of flash (0x1000_0000)?",
+    options: ["The interrupt vector table", "The user application code", "The Start Block used by the RP2350 bootloader", "The RAM mirror"],
+    correct: [2]
+  },
+  {
+    topic: "L9 — Exceptions & Interrupts",
+    type: "multi",
+    q: "What are the key differences between RP2040 and RP2350 boot processes?",
+    options: ["RP2040 has a fixed interrupt vector at 0x1000_0100; RP2350 searches for a Start Block between 0x1000_0000 and 0x1000_4000", "RP2040 shows a USB drive on BOOTSEL press; RP2350 does not support USB boot", "RP2350 supports signed firmware verification; RP2040 does not natively", "Both use identical bootloaders"],
+    correct: [0, 2]
+  },
+
+  // ── LECTURE 10 EXTRA ────────────────────────────────────────────────
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "What is an Exempt memory region in TrustZone?",
+    options: ["A region only accessible by Secure code", "A region accessible by any code but NOT executable — bus transfer attribute based on executing mode", "A region accessible only from NonSecure mode", "A region that bypasses all MPU checks"],
+    correct: [1]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "When IDAU and SAU attributes conflict for the same memory address, which wins?",
+    options: ["IDAU always takes priority", "SAU always takes priority", "The most restrictive attribute wins", "The least restrictive wins to ensure accessibility"],
+    correct: [2]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "What is the MPC (Memory Protection Controller)?",
+    options: ["An alias for the SAU", "A vendor-optional component that splits RAM/Flash into pages and marks each as Secure or NonSecure", "The hardware block that executes SG instructions", "The NVIC extension for TrustZone"],
+    correct: [1]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "What is the PPC (Peripheral Protection Controller)?",
+    options: ["The component that encrypts peripheral register access", "An optional component that marks each peripheral as Secure or NonSecure including its interrupts", "The clock gating controller for secure peripherals", "The DMA controller for TrustZone"],
+    correct: [1]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "In TrustZone, RAM and Flash are aliased. What does this mean?",
+    options: ["RAM and Flash have the same contents", "The same physical RAM/Flash appears at two different addresses — one Secure alias and one NonSecure alias", "RAM and Flash share the same address range", "Aliasing means they are mirrored for redundancy"],
+    correct: [1]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "In Rust, which attribute marks a function as callable from NonSecure code?",
+    options: ["#[no_mangle]", "#[cmse_nonsecure_entry]", "#[export_name]", "#[link_section]"],
+    correct: [1]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "What is a key limitation when passing parameters between Secure and NonSecure code?",
+    options: ["Parameters can only be pointers", "Parameters must be u32 only", "Parameters can only be passed via CPU registers — NonSecure code cannot access the Secure stack", "Parameters require encryption before passing"],
+    correct: [2]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "What is Try-before-you-buy in the context of RP2350 secure firmware?",
+    options: ["A trial license for the Rust toolchain", "New firmware is tested before fully committing — if it fails verification it rolls back to the previous version", "The bootloader tests hardware before loading firmware", "A purchasing model for development boards"],
+    correct: [1]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "In digital signature verification for secure boot, what does the bootloader do with the stored public key?",
+    options: ["Encrypts the firmware before writing to Flash", "Decrypts the hash from the firmware signature, hashes the firmware itself, and compares them", "Signs new firmware updates", "Generates a session key for UART communication"],
+    correct: [1]
+  },
+  {
+    topic: "L10 — Secure Execution",
+    type: "single",
+    q: "Why should a different key pair be generated for every provisioned device?",
+    options: ["To comply with USB standards", "So that compromising one device's private key does not compromise all other devices", "Because OTP can only store one key size", "To enable key rotation without hardware changes"],
+    correct: [1]
+  }
+];
+
 let questions = [...ALL_QUESTIONS];
 let answers = {};   // keyed by question text — persists across topic switches
 let currentTopic = "All";
+let currentSource = "tests"; // "tests" or "notes"
 let mode = "quiz";
 let fcIndex = 0;
 let fcRevealed = false;
@@ -1683,8 +3282,9 @@ function setState(qi, val) { answers[questions[qi].q] = val; }
 
 function saveSession() {
   try {
+    const questionKeys = questions.map(q => q.q);
     localStorage.setItem(SAVE_KEY, JSON.stringify({
-      currentTopic, mode, stepIndex, fcIndex,
+      currentTopic, currentSource, mode, stepIndex, fcIndex,
       questionOrder: questions.map(q => q.q),
       answers
     }));
@@ -1697,6 +3297,7 @@ function loadSession() {
     if (!raw) return false;
     const saved = JSON.parse(raw);
     currentTopic = saved.currentTopic || "All";
+    currentSource = saved.currentSource || "tests";
     mode = saved.mode || "quiz";
     stepIndex = saved.stepIndex || 0;
     fcIndex = saved.fcIndex || 0;
@@ -1704,9 +3305,8 @@ function loadSession() {
     // Restore question order
     const order = saved.questionOrder || [];
     if (order.length > 0) {
-      const base = currentTopic === "All"
-        ? ALL_QUESTIONS
-        : ALL_QUESTIONS.filter(q => q.topic === currentTopic);
+      const pool = currentSource === "tests" ? ALL_QUESTIONS : NOTES_QUESTIONS;
+      const base = currentTopic === "All" ? pool : pool.filter(q => q.topic === currentTopic);
       const reordered = [];
       order.forEach(k => { const f = base.find(q => q.q === k); if (f) reordered.push(f); });
       base.forEach(q => { if (!reordered.includes(q)) reordered.push(q); });
@@ -1722,6 +3322,8 @@ function clearSession() {
 
 function init() {
   const restored = loadSession();
+  document.getElementById("src-tests").classList.toggle("active", currentSource === "tests");
+  document.getElementById("src-notes").classList.toggle("active", currentSource === "notes");
   renderTopicFilter();
   if (restored) {
     updateStats();
@@ -1740,6 +3342,30 @@ function init() {
   }
 }
 
+function activePool() {
+  return currentSource === "tests" ? ALL_QUESTIONS : NOTES_QUESTIONS;
+}
+
+function setSource(src) {
+  currentSource = src;
+  currentTopic = "All";
+  stepIndex = 0;
+  stepSelected = [];
+  document.getElementById("src-tests").classList.toggle("active", src === "tests");
+  document.getElementById("src-notes").classList.toggle("active", src === "notes");
+  questions = [...activePool()];
+  renderTopicFilter();
+  updateStats();
+  saveSession();
+  document.getElementById("results-screen").classList.remove("show");
+  document.getElementById("quiz-view").style.display = mode === "quiz" ? "block" : "none";
+  document.getElementById("step-view").style.display = mode === "step" ? "block" : "none";
+  document.getElementById("flashcard-view").style.display = mode === "flashcard" ? "block" : "none";
+  if (mode === "quiz") renderQuiz();
+  else if (mode === "step") renderStep();
+  else { fcIndex = 0; renderFlashcard(); }
+}
+
 function updateResetBtn() {
   const btn = document.getElementById("reset-btn");
   if (!btn) return;
@@ -1747,10 +3373,12 @@ function updateResetBtn() {
 }
 
 function renderTopicFilter() {
+  const pool = activePool();
+  const topics = ["All", ...new Set(pool.map(q => q.topic))];
   const wrap = document.getElementById("topic-filter");
   wrap.innerHTML = topics.map(t =>
     `<button class="topic-btn${t === currentTopic ? " active" : ""}" onclick="setTopic('${t.replace(/'/g,"\\'")}')">
-      ${t === "All" ? "All topics" : t.replace(/Lecture \d+\/?[\d]* — /, "")}
+      ${t === "All" ? "All topics" : t.replace(/L(?:ecture)? \d+\/?[\d]* [—–-] /, "").replace(/^L\d+ — /, "")}
     </button>`
   ).join("");
   updateResetBtn();
@@ -1763,9 +3391,10 @@ function setTopic(t) {
 }
 
 function filterAndRender() {
+  const pool = activePool();
   questions = currentTopic === "All"
-    ? [...ALL_QUESTIONS]
-    : ALL_QUESTIONS.filter(q => q.topic === currentTopic);
+    ? [...pool]
+    : pool.filter(q => q.topic === currentTopic);
   stepIndex = 0;
   stepSelected = [];
   updateStats();
@@ -1787,9 +3416,10 @@ function shuffleQuestions() {
 }
 
 function resetAll() {
+  const pool = activePool();
   questions = currentTopic === "All"
-    ? [...ALL_QUESTIONS]
-    : ALL_QUESTIONS.filter(q => q.topic === currentTopic);
+    ? [...pool]
+    : pool.filter(q => q.topic === currentTopic);
   // Only delete answers for questions in the current view
   questions.forEach(q => { delete answers[q.q]; });
   // If all questions are now unanswered, also clear the full save
